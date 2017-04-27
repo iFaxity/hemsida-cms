@@ -1,0 +1,100 @@
+extends ../layout
+
+block head
+  link(rel="stylesheet" href="/stylesheets/booking.css")
+
+block content
+  .ui.container
+    h1= title
+    p= `Welcome to ${title}`
+
+    .ui.stackable.two.column.grid
+      form.column
+        input#date(value="" hidden="")
+
+        label(for="time") Tider
+        select#time
+          option 8:00
+          option 10:00
+          option 13:00
+          option 15:00
+        button(type="submit") Bestäm tid
+
+      //.calendar.column
+        .ui.top.attached.block.header
+          .ui.grid
+            .one.wide.column
+              i.triangle.left.icon
+            .fourteen.wide.column
+              h4.ui.header.center.aligned Mars
+            .one.wide.column
+              i.triangle.right.icon
+        .ui.bottom.attached.segment
+          .days.ui.eight.column.grid
+              .column
+                a.ui.button.fluid.middle.aligned 1
+              .column
+                a.ui.button.fluid.middle.aligned 2
+              .column
+                a.ui.button.fluid.middle.aligned 3
+              .column
+                a.ui.button.fluid.middle.aligned 4
+              .column
+                a.ui.button.fluid.middle.aligned 5
+              .column
+                a.ui.button.fluid.middle.aligned 6
+              .column
+                a.ui.button.fluid.middle.aligned 7
+              .column
+                a.ui.button.fluid.middle.aligned 8
+              .column
+                a.ui.button.fluid.middle.aligned 9
+              .column
+                a.ui.button.fluid.middle.aligned 10
+              .column
+                a.ui.button.fluid.middle.aligned 11
+              .column
+                a.ui.button.fluid.middle.aligned 12
+              .column
+                a.ui.button.fluid.middle.aligned 13
+              .column
+                a.ui.button.fluid.middle.aligned 14
+              .column
+                a.ui.button.fluid.middle.aligned 15
+              .column
+                a.ui.button.fluid.middle.aligned 16
+              .column
+                a.ui.button.fluid.middle.aligned 17
+              .column
+                a.ui.button.fluid.middle.aligned 18
+              .column
+                a.ui.button.fluid.middle.aligned 19
+              .column
+                a.ui.button.fluid.middle.aligned 20
+              .column
+                a.ui.button.fluid.middle.aligned 21
+              .column
+                a.ui.button.fluid.middle.aligned 22
+              .column
+                a.ui.button.fluid.middle.aligned 23
+              .column
+                a.ui.button.fluid.middle.aligned 24
+              .column
+                a.ui.button.fluid.middle.aligned 25
+              .column
+                a.ui.button.fluid.middle.aligned 26
+              .column
+                a.ui.button.fluid.middle.aligned 27
+              .column
+                a.ui.button.fluid.middle.aligned 28
+              .column
+                a.ui.button.fluid.middle.aligned 29
+              .column
+                a.ui.button.fluid.middle.aligned 30
+              .column
+                a.ui.button.fluid.middle.aligned 31
+
+
+
+
+      #calendar.column

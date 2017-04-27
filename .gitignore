@@ -1,0 +1,13 @@
+.vscode/
+.idea/
+
+# Node 
+node_modules\
+
+# Windows
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+*.lnk
+
+.DS_STORE

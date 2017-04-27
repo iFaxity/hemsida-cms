@@ -1,0 +1,7 @@
+.days .button.selected {
+   border: 1px solid black;
+}
+
+.days .button {
+   border: 1px solid transparent;
+}

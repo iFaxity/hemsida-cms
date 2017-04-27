@@ -1,0 +1,20 @@
+CMS
+    login page
+    edit page
+        templates & text editing
+        save pages content in views/pages for cache and easy editing
+    remove pages
+    add pages
+
+
+Website
+    products
+    home page
+        news feed (facebook?)
+    contact page
+
+        address
+        map
+    place order
+
+    letsencrypt TSL

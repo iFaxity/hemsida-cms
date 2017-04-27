@@ -1,0 +1,40 @@
+doctype html
+html
+  head
+    title= title
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width,initial-scale=1")
+    link(rel="stylesheet" href="/stylesheets/semantic.min.css")
+    block head
+  body
+    header.ui.inverted.center.aligned.segment
+      .ui.container
+          // Main menu
+          nav.ui.secondary.pointing.inverted.menu
+            a.active.item Hem
+            a.item Om oss
+            a.item Kontakta oss
+            .right.menu
+              a.ui.primary.button Logga in
+              a.ui.positive.button Skapa konto
+              //a.ui.inverted.button Logga in
+              //a.ui.inverted.button Skapa konto
+
+    // Main section
+    main
+      section.ui.inverted.center.aligned.segment
+        .ui.text.container
+          h1.ui.inverted.header Imagine-a-Company
+          h2 Do whatever you want when you want to.
+          .ui.huge.primary.button
+            | Get started
+            i.right.arrow.icon
+
+      // Page content goes here
+      block content
+
+    // Footer contents
+    footer
+
+    // Load AMD library
+    script(src="/javascripts/amd.min.js")

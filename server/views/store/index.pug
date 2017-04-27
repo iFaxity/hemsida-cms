@@ -1,0 +1,17 @@
+include ../layout
+
+block content
+  // sidebar
+  .ui.container
+
+    // Login form
+    form(method="post")
+      label(for="user") Användarnamn
+      input#user(type="text" name="user" required="" placeholder="Användarnamn")
+
+      label(for="pass") Lösenord
+      input#pass(type="password" name="password" required="" placeholder="Lösenord")
+
+      button Logga in
+
+
