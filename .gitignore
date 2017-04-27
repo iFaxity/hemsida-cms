@@ -1,8 +1,9 @@
+# Editor ignores
 .vscode/
 .idea/
 
-# Node 
-node_modules\
+# Node Ignores
+node_modules/
 
 # Windows
 Thumbs.db
@@ -10,4 +11,5 @@ ehthumbs.db
 ehthumbs_vista.db
 *.lnk
 
+# macOS
 .DS_STORE
