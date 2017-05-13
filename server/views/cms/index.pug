@@ -1,46 +1,16 @@
 include layout
 
-block head
-  style.
-    body {
-      background-color: #f0f0f0; /*#DADADA*/
-    }
-
-    body > .grid {
-      height: 100%;
-    }
-
-    .image {
-      margin-top: -100px;
-    }
-
-    .column {
-      max-width: 450px;
-    }
-
-
 block content
-  .ui.middle.aligned.center.aligned.grid
-    .column
-      h2.ui.green.image.header
-        // <img src="assets/images/logo.png" class="image">
-        | Logga in på CMS
+  .ui.vertical.inverted.menu
+    .item Button
+    .item Image
+    .item Grid
+    .item List
+  main
+    #content
+  //sidebar of components
+  //page selector (top of page)
+  //main content from pages dir with liv3e editor in form of modal to change info on the component
 
-      form.ui.large.form(method="POST" action="/auth")
-        .ui.stacked.segment
-          .field
-            .ui.left.icon.input
-              i.user.icon
-              input(type="text" name="user" placeholder="Användarnamn")
-          .field
-            .ui.left.icon.input
-              i.lock.icon
-              input(type="password" name="password" placeholder="Lösenord")
-          button.ui.fluid.large.green.submit.button Logga in
-
-      // Show error message if needed    
-      if messages.error
-        .ui.error.message
-          .header Authentication Error
-          p= messages.error 
-      
+  //TODO: create a component for handling all of the interactions perahaps?
+  // Maybe make a controller? (for sidebar and stuff)

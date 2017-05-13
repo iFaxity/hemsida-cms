@@ -1,4 +1,4 @@
-(function(global, factory) {
+(function (global, factory) {
   // Module exporting
   if (typeof define === "function" && define.amd) {
     define(factory);
@@ -8,7 +8,7 @@
       module.exports = exports;
     }
   }
-})(this, function() {
+})(this, function () {
   // Helpers for the user. May be heavily changed in the future.
   const Utils = {
     /**
@@ -45,7 +45,7 @@
       }
 
       let length = arr.length,
-          rand, temp;
+        rand, temp;
 
       while (length) {
         rand = this.randomInt(0, length--);
@@ -87,8 +87,8 @@
     /**
      * Checks if 2 objects are equal to each other
      * Only traverses down objects once.
-     * @param {*} obj1 - First object to compare with
-     * @param {*} obj2 - Second object to compare with
+     * @param {Object} obj1 - First object to compare with
+     * @param {Object} obj2 - Second object to compare with
      * @param {boolean} [deep] - If deep property check should be used
      * @returns {boolean}
      */
@@ -104,9 +104,9 @@
         const val1 = obj1[key];
         const val2 = obj2[key];
 
-        if(deep) {
+        if (deep) {
           // Only traverse once
-          if(this.isObject(val1) && this.isObject(val2)) {
+          if (this.isObject(val1) && this.isObject(val2)) {
             return this.isEqual(val1, val2, false);
           }
         }
@@ -118,22 +118,22 @@
 
   function createEvent(el, eventName, listener) {
     // Parameter check
-    if(Array.isArray(eventName)) {
+    if (Array.isArray(eventName)) {
       return eventName.every(name => this.on(el, name, listener));
     } else if (typeof eventName !== "string" || typeof listener !== "function") {
       throw new TypeError("Parameter error in DOM.on");
     }
 
     const index = eventName.indexOf(" ");
-    const event = {selector: null, listener};
+    const event = { selector: null, listener };
 
     // Check if selector was added
     if (index !== -1) {
       event.selector = eventName.substr(index + 1);
       eventName = eventName.substr(0, index);
 
-      event.listener = function(e) {
-        if(e.target.matches(event.selector)) {
+      event.listener = function (e) {
+        if (e.target.matches(event.selector)) {
           listener.call(this, e);
         }
       };
@@ -165,10 +165,7 @@
      * @returns {Element|null}
      */
     find(str, el) {
-      el = el || document;
-
-      const result = el.querySelector(str);
-      return result || null;
+      return (el || document).querySelector(str);
     },
 
     /**
@@ -178,10 +175,7 @@
      * @returns {NodeList|null}
      */
     findAll(str, el) {
-      el = el || document;
-
-      const result = el.querySelectorAll(str);
-      return result.length > 0 ? result : null;
+      return (el || document).querySelectorAll(str);
     },
 
     /**
@@ -191,20 +185,16 @@
      * @returns {NodeList|null}
      */
     findTagName(tagName, el) {
-      el = el || document;
-
-      const result = el.getElementsByTagName(tagName);
-      return result.length > 0 ? result : null;
+      return (el || document).getElementsByTagName(tagName);
     },
 
     /**
      * Finds an element with a specified id
      * @param {String} id - ID of the element to find
-     * @returns {Element|null}
+     * @returns {HTMLElement|null}
      * */
     findId(id) {
-      const result = document.getElementById(id);
-      return result || null;
+      return document.getElementById(id);
     },
 
     /**
@@ -214,10 +204,7 @@
      * @returns {NodeList|null}
      * */
     findClass(className, el) {
-      el = el || document;
-
-      const result = el.getElementsByClassName(className);
-      return result.length > 0 ? result : null;
+      return (el || document).getElementsByClassName(className);
     },
 
     /**
@@ -259,16 +246,16 @@
       let element;
 
       // Create a text node
-      if(!props || tagName === "#text") {
+      if (!props || tagName === "#text") {
         const text = typeof props === "string" ? props : tagName;
         element = document.createTextNode(text);
       } else {
         element = document.createElement(tagName);
 
         // Set properties
-        if(typeof props === "string") {
+        if (typeof props === "string") {
           element.textContent = props;
-        } else if(props) {
+        } else if (props) {
           Object.keys(props).forEach(prop => {
             if (prop in element) {
               element[prop] = props[prop];
@@ -295,10 +282,7 @@
      */
     dispatch(element, eventName, data = null) {
       let event;
-      const options = {
-        bubbles: true,
-        cancelable: true
-      };
+      const options = { bubbles: true, cancelable: true };
 
       // Create the event before dispatching
       if (data != null) {
@@ -348,23 +332,23 @@
      * @returns {Boolean} Succeeded or not
      */
     off(el, eventName, listener) {
-      if(typeof listener !== "function") {
+      if (typeof listener !== "function") {
         listener = null;
       }
 
-      if(el && el.__DOMEvents) {
-        if(Array.isArray(eventName)) {
+      if (el && el.__DOMEvents) {
+        if (Array.isArray(eventName)) {
           return eventName.every(name => this.off(el, name, listener));
-        } else if(typeof eventName !== "string") {
+        } else if (typeof eventName !== "string") {
           return Object.keys(el.__DOMEvents).every(eventName => this.off(el, eventName));
-        } else if(el.__DOMEvents[eventName]) {
+        } else if (el.__DOMEvents[eventName]) {
           const events = [];
           let fn = event => el.removeEventListener(eventName, event.listener);
 
           // Only remove with specific listener
-          if(listener) {
+          if (listener) {
             fn = event => {
-              if(event.listener === listener) {
+              if (event.listener === listener) {
                 el.removeEventListener(eventName, listener);
               } else {
                 events.push(event);
@@ -386,7 +370,7 @@
     Object.keys(props).forEach(prop => {
       const value = props[prop];
 
-      if(typeof el[prop] !== "undefined" && value != null) {
+      if (typeof el[prop] !== "undefined" && value != null) {
         el[prop] = value;
       }
 
@@ -397,9 +381,9 @@
   }
   function setEvents(el, events) {
     events.forEach(event => {
-      if(event.type === "on") {
+      if (event.type === "on") {
         DOM.on(el, event.eventName, event.listener);
-      } else if(event.type === "once") {
+      } else if (event.type === "once") {
         DOM.once(el, event.eventName, event.listener);
       }
     });
@@ -416,85 +400,46 @@
         // Render components before comparing
         if (isComponent) {
           child.children = [];
-          child.render();
+          child.context = context;
+          child.render(child.props, child.state);
         }
 
         // Decide what action to take
         if (!ctxChild) {
-          // No context is not yet created
           const el = createElement(child);
           context.appendChild(el);
         }
         else {
-          // Diff the virtual to the actual DOM
-          const shouldUpdate = shouldUpdate(ctxChild, child);
+          // If tag has changed. Re-create the element
+          // TODO: exchange nodename for some kind of ID
+          if (ctxChild.nodeName !== child.tagName) {
+            const el = createElement(child);
 
-          // Update or re-create the context
-          if(shouldUpdate) {
-            updateElement(ctxChild, child);
-          } else {
-            const newChild = createElement(child);
-
-            // Unmount if a component
+            // Check if unmounting is needed
             const ctxComponent = ctxChild.__DOMComponent;
-            if(ctxComponent instanceof Component) {
+            if (ctxComponent && ctxComponent instanceof Component) {
               ctxComponent.unmounted();
             }
 
-            context.replaceChild(newChild, ctxChild);
+            context.replaceChild(el, ctxChild);
           }
-
-          /* If tag has changed. Re-create the element
-           /if (ctxChild.nodeName !== child.tagName) {
-           const el = createElement(child);
-
-           // Check if unmounting is needed
-           const ctxComponent = ctxChild.__DOMComponent;
-           if(ctxComponent && ctxComponent instanceof Component) {
-           ctxComponent.unmounted();
-           }
-
-           context.replaceChild(el, ctxChild);
-           }
-           else {
-           updateElement(ctxChild, child);
-           }*/
+          else {
+            updateElement(ctxChild, child);
+          }
         }
       });
 
       // Remove elements that does not belong anymore
       const diff = context.childNodes.length - el.children.length;
-      for(let i = 0; i < diff; i++) {
+      for (let i = 0; i < diff; i++) {
         removeElement(context, context.lastChild);
       }
 
       // Exec callback if defined
-      if(typeof callback === "function") {
+      if (typeof callback === "function") {
         callback();
       }
     }, 0);
-  }
-
-  // Checks if a context should just update or be recreated
-  function shouldUpdate(ctxEl, el) {
-    const component = ctxEl.__DOMComponent;
-    const isComponent = ctxEl instanceof Component;
-    let shouldUpdate = true;
-
-    // Check if we should just update or recreate the context
-    if(isComponent) {
-      if(isComponent) {
-        if(component.constructor !== el.constructor) {
-          shouldUpdate = false;
-        }
-      } else {
-        shouldUpdate = false;
-      }
-    } else if(ctxEl.nodeName !== el.tagName) {
-      shouldUpdate = false;
-    }
-
-    return shouldUpdate;
   }
 
   // Updates virtual element to rendered element
@@ -506,7 +451,7 @@
     setProps(context, el.props);
 
     // Traverse the next children
-    if(el.children) {
+    if (el.children) {
       traverse(context, el);
     }
   }
@@ -517,13 +462,12 @@
     const isComponent = el instanceof Component;
 
     // Check if element is text node
-    if(el.tagName === "#text") {
+    if (el.tagName === "#text") {
       element = document.createTextNode(el.props.textContent);
     } else {
       if (isComponent) {
         element = document.createElement("div");
         element.__DOMComponent = el;
-        el.context = element;
       } else {
         element = document.createElement(el.tagName);
       }
@@ -536,7 +480,7 @@
       }
 
       // Mount & set events
-      if(isComponent) {
+      if (isComponent) {
         el.mounted(element);
       }
       setEvents(element, el.events);
@@ -546,20 +490,19 @@
 
   // Removes all elements down a chain & safely unmounts all components
   function removeElement(context, el) {
-    if(el.children) {
-      for(let child of el.children) {
+    if (el.children) {
+      for (let child of el.children) {
         removeElement(el, child);
       }
     }
 
     context.removeChild(el);
-    if(el.__DOMComponent) {
+    if (el.__DOMComponent) {
       el.__DOMComponent.unmounted();
-      el.__DOMComponent.context = null;
     }
   }
 
-  class DOMNode {
+  class VNode {
     constructor() {
       this.events = [];
       this.children = [];
@@ -567,8 +510,8 @@
 
     create(tagName, props, events, component) {
       const child = tagName instanceof Component
-          ? tagName
-          : new DOMElement(tagName, props, events, component);
+        ? tagName
+        : new VElement(tagName, props, events, component);
 
       this.children.push(child);
       return child;
@@ -576,16 +519,16 @@
 
     on(eventName, listener) {
       const component = this instanceof Component ? this : this.component;
-      this.events.push({type: "on", eventName, listener: listener.bind(component)});
+      this.events.push({ type: "on", eventName, listener: listener.bind(component) });
       return this;
     }
     once(eventName, listener) {
       const component = this instanceof Component ? this : this.component;
-      this.events.push({type: "once", eventName, listener: listener.bind(component)});
+      this.events.push({ type: "once", eventName, listener: listener.bind(component) });
       return this;
     }
     off(eventName, listener) {
-      if(this.context) {
+      if (this.context) {
         DOM.off(this.context, eventName, listener);
       } else {
         throw new TypeError("Cant call off on a non component.");
@@ -593,7 +536,7 @@
     }
   }
 
-  class Component extends DOMNode {
+  class Component extends VNode {
     /**
      * Constructs a new Component
      * @param {Object} [props] - Properties of the component
@@ -601,7 +544,7 @@
     constructor(props) {
       super();
       this.props = props || {};
-      if(!this.state) {
+      if (!this.state) {
         this.state = {};
       }
     }
@@ -609,18 +552,18 @@
     /**
      * Renders virtual representation of the component to use in the diffing of the component
      */
-    render() {}
+    render() { }
 
     /**
      * Executes whenever the component becomes mounted onto the DOM
      * @param {HTMLElement} context - Context of the mounted component
      */
-    mounted(context) {}
+    mounted(context) { }
 
     /**
      * Executes whenever the component becomes unmounted from the DOM
      */
-    unmounted() {}
+    unmounted() { }
 
     /**
      * Sets the state of the component. If the new state is the same as the present state then nothing will change.
@@ -629,7 +572,7 @@
     setState(newState) {
       //this.prevState = this.state;
       this.state = newState;
-      Component.render(this);
+      Component.render(this.context, this);
 
       // Check if re-render is needed
       /*if (!Utils.isEqual(this.state, newState)) {
@@ -663,44 +606,39 @@
 
     /**
      * Renders an element or component to context
-     * @param {HTMLElement} [context] - Element to render to
+     * @param {HTMLElement} context - Element to render to
      * @param {Component} el - Component to diff from
      */
     static render(context, el) {
-      let firstMount = false;
+      const isComponent = el instanceof Component;
+      const isMounted = el.children && el.children.length > 0;
 
-      // Parameter checking
-      if(context instanceof Component) {
-        el = context;
-        context = el.context;
-      } else {
-        if(!(el instanceof Component)) {
-          throw new TypeError("Unidentified component defined in Component.render");
-        }
-        if(typeof context === "string") {
-          context = DOM.find(context);
-        }
+      // Parameter check
+      if (typeof context === "string") {
+        context = DOM.find(context);
+      }
+      if (!(context instanceof HTMLElement)) {
+        throw new TypeError("Parameter 'context' is not an HTMLElement.");
       }
 
-      if(!(context instanceof HTMLElement)) {
-        throw new TypeError("Unidentified context defined in Component.render");
-      }
-
-      // Check if render was called on already mounted component
-      if(el.context !== context) {
-        // Component reference on element
-        firstMount = true;
+      if (isComponent) {
+        el.children = [];
         el.context = context;
+        el.render(el.props, el.state);
+
+        // Component reference on element
         context.__DOMComponent = el;
       }
+      else if (!el.children) {
+        throw new TypeError("Parameter 'el' is of invalid type");
+      }
 
-      // Do the render on the component
-      el.children = [];
-      el.render();
       traverse(context, el, () => {
         // is component first time mounted?
-        if (firstMount) {
+        if (isComponent && !isMounted) {
           el.mounted(context);
+
+          // Set events (after mounting)
           setEvents(context, el.events);
         }
       });
@@ -714,11 +652,11 @@
     static remove(el) {
       const component = el.__DOMComponent || el;
       const context = component.context;
-      if(!(component instanceof Component)) {
+      if (!(component instanceof Component)) {
         throw new TypeError("The parameter has to be a rendered Component or an element that contains a rendered Component.");
       }
 
-      while(context.firstChild) {
+      while (context.firstChild) {
         removeElement(context, context.firstChild);
       }
 
@@ -729,7 +667,7 @@
     }
   }
 
-  class DOMElement extends DOMNode {
+  class VElement extends VNode {
     /**
      * Constructs a virtual DOM element
      * @param {string} tagName - Tag name of element e.g "p", "div" "#text". The latter will create a text node
@@ -742,23 +680,23 @@
       this.component = component;
 
       // Text nodes cant have
-      if(tagName === "#text") {
-        if(typeof props !== "string") {
+      if (tagName === "#text") {
+        if (typeof props !== "string") {
           throw new TypeError("DOM Error: A text node requires to have parameter 'props' as string");
         }
 
-        this.props = {textContent: props};
+        this.props = { textContent: props };
         this.tagName = tagName;
       }
       else {
-        if(Utils.isObject(tagName)) {
+        if (Utils.isObject(tagName)) {
           events = props;
           props = tagName;
           tagName = "div";
         }
 
         // Set events
-        if(Utils.isObject(events)) {
+        if (Utils.isObject(events)) {
           Object.keys(events).forEach(eventName => {
             this.on(eventName, events[eventName]);
           });
@@ -767,11 +705,11 @@
         // Set element properties
         this.tagName = tagName.toUpperCase();
         this.props = typeof props === "string"
-            ? {textContent: props}
-            : props || {};
+          ? { textContent: props }
+          : props || {};
 
         // Append text as text nodes
-        if(this.props.textContent) {
+        if (this.props.textContent) {
           this.create("#text", this.props.textContent);
           delete this.props.textContent;
         }
@@ -785,79 +723,87 @@
 
   /**
    * Constructs a promise based Ajax request
-   * @param {Object} options - Request options.
+   * @param {Object} config - Request options.
    * @returns {Promise}
    */
-  function Ajax(options) {
-    const settings = {
-      url: null,
-      method: "GET",
-      timeout: 0,
-      data: null,
-      type: null
-    }, xhr = new XMLHttpRequest();
-
-    if (!Utils.isObject(options)) {
-      throw "QLib: AJAX's parameter must be an object!";
+  function Ajax(config) {
+    const xhr = new XMLHttpRequest();
+    if (!Utils.isObject(config)) {
+      throw "The parameter specified in Ajax is not valid";
     }
 
-    // Override default settings
-    Object.assign(settings, options);
-
-    // Use promise with ajax request
     return new Promise((resolve, reject) => {
-      try {
-        const data = settings.data;
-        const method = settings.method.toUpperCase();
-        let url = settings.url, formData;
+      // Force uppercase on method
+      const method = (config.method || "GET").toUpperCase();
+      const headers = config.headers || {};
+      let {data, url} = config;
 
-        // Add events to resolve the promise
-        xhr.addEventListener("error", () => reject(new Error("Network Error")));
-        xhr.addEventListener("load", () => {
-          if (xhr.status >= 200 && xhr.status < 400) {
-            resolve(xhr.response || xhr.responseText);
-          } else {
-            reject(new Error(`Code: ${xhr.status}; Message: ${xhr.statusText}`));
+      // Add events to resolve the promise
+      xhr.addEventListener("error", () => reject(new Error("Network Error.")));
+      xhr.addEventListener("load", () => {
+        if (xhr.status >= 200 && xhr.status < 400) {
+          resolve(xhr.response || xhr.responseText);
+        } else {
+          const err = new Error(`${xhr.status}: ${xhr.statusText}`);
+          err.status = xhr.status;
+          reject(err);
+        }
+      });
+
+      if (config.timeout) {
+        xhr.addEventListener("timeout", () => reject(new Error("Request timed out.")));
+        xhr.timeout = config.timeout;
+      }
+      if (config.type) {
+        xhr.responseType = config.type;
+      }
+
+      if (Utils.isObject(data)) {
+        // Parse the data of the request
+        if (method === "GET") {
+          url += "?" + Ajax.param(data);
+          data = null;
+        } else if (!(data instanceof FormData)) {
+          data = Ajax.param(data);
+          if (headers && !headers["Content-Type"]) {
+            headers["Content-Type"] = "application/x-www-form-urlencoded";
           }
+        }
+      }
+
+      // Open request before setting headers
+      xhr.open(method, url, true);
+      if(Utils.isObject(headers)) {
+        Object.keys(headers).forEach(key => {
+          xhr.setRequestHeader(key, headers[key]);
         });
-
-        if (Utils.isObject(data)) {
-          // If method is POST then use FormData
-          // Otherwise use query string
-          if(method === "POST") {
-            if(data instanceof FormData) {
-              formData = data;
-            } else {
-              formData = new FormData();
-              Object.keys(data).forEach(key => formData.append(key, data[key]));
-            }
-          }
-          else {
-            url += "?" + Ajax.param(data);
-          }
-        }
-
-        if (settings.timeout) {
-          xhr.timeout = settings.timeout;
-        }
-        if (settings.type) {
-          xhr.responseType = settings.type;
-        }
-
-        // Send with data (if specified)
-        xhr.open(method, url);
-        xhr.send(formData);
       }
-      catch (ex) {
-        reject(ex);
-      }
+
+      // Finally send request with data
+      xhr.send(data);
     });
   }
 
-  Ajax.get = (url, data) => Ajax({url, data, method: "GET"});
-  Ajax.post = (url, data) => Ajax({url, data, method: "POST"});
-  Ajax.put = (url, data) => Ajax({url, data, method: "PUT"});
-  Ajax.delete = (url, data) => Ajax({url, data, method: "DELETE"});
+  Ajax.get = function(url, data)  {
+    const config = Utils.isObject(url) ? url : { url, data };
+    config.method = "GET";
+    return Ajax(config);
+  };
+  Ajax.post = function(url, data)  {
+    const config = Utils.isObject(url) ? url : { url, data };
+    config.method = "POST";
+    return Ajax(config);
+  };
+  Ajax.put = function(url, data)  {
+    const config = Utils.isObject(url) ? url : { url, data };
+    config.method = "PUT";
+    return Ajax(config);
+  };
+  Ajax.delete = function(url, data) {
+    const config = Utils.isObject(url) ? url : { url, data };
+    config.method = "DELETE";
+    return Ajax(config);
+  };
 
   /**
    * Gets JSON data of an requested url
@@ -865,9 +811,9 @@
    * @param {Object} [data] - Data to send on the request
    * @returns {Promise}
    */
-  Ajax.getJSON = (url, data) => {
+  Ajax.getJSON = function (url, data) {
     //type: "json" not supported in IE11.
-    return Ajax({url, data}).then(json => {
+    return Ajax({ url, data }).then(json => {
       try {
         return JSON.parse(json);
       }
@@ -882,7 +828,7 @@
    * @param {Object|Array} params - Object to convert into query string
    * @returns {string}
    */
-  Ajax.param = params => {
+  Ajax.param = function(params) {
     // Only an object or array is allowed
     if (!Utils.isObject(params) && !Array.isArray(params)) {
       throw new TypeError("Parameter 'obj' is not an object or an array");
@@ -891,7 +837,7 @@
     // Remove all null and undefined values and encode the key's and values
     const arr = [];
     Object.keys(params).forEach(param => {
-      if(typeof params[param] !== "undefined") {
+      if (typeof params[param] !== "undefined") {
         arr.push(encodeURIComponent(param) + "=" + encodeURIComponent(params[param]));
       }
     });
@@ -901,7 +847,7 @@
 
   class Template {
     constructor(template) {
-      if(!("content" in template)) {
+      if (!("content" in template)) {
         throw new TypeError("Invalid Parameter in DOM.Template! First parameter has to be TemplateElement.");
       }
 
@@ -909,7 +855,7 @@
     }
 
     render(target, vars) {
-      if(target.nodeType === Node.ELEMENT_NODE && Utils.isPureObject(vars)) {
+      if (target.nodeType === Node.ELEMENT_NODE && Utils.isPureObject(vars)) {
         const node = document.importNode(this.template.content, true);
 
         // Template all the template literals
@@ -921,15 +867,15 @@
   }
 
   function renderTemplate(node, vars) {
-    if(node.childNodes && node.childNodes.length > 0) {
+    if (node.childNodes && node.childNodes.length > 0) {
       // Traverse the children off node
       node.childNodes.forEach(child => {
         // Only get text nodes
-        if(child.nodeType === Node.ELEMENT_NODE) {
+        if (child.nodeType === Node.ELEMENT_NODE) {
           renderTemplate(child, vars);
         }
-        else if(child.nodeType === Node.TEXT_NODE) {
-          if(child.nodeValue.indexOf("${") >= 0) {
+        else if (child.nodeType === Node.TEXT_NODE) {
+          if (child.nodeValue.indexOf("${") >= 0) {
             child.nodeValue = Utils.format(child.nodeValue, vars);
           }
         }
@@ -947,7 +893,7 @@
   });
 
   // Always export to window if available
-  if(window && !window.DOM) {
+  if (window && !window.DOM) {
     window.DOM = DOM;
   }
   return DOM;

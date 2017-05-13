@@ -24,7 +24,6 @@ const isProduction = app.get("env") === "prodution";
 app.set("views", path.join(__dirname, "server/views"));
 app.set("view engine", "pug");
 app.set("trust proxy", 1); // trust first proxy
-app.set("subdomain offset", 1); // required for subdomains
 
 // uncomment after placing your favicon in /client
 //app.use(favicon(path.join(__dirname, "client", "favicon.ico")));

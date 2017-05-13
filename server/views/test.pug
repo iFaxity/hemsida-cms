@@ -4,10 +4,77 @@ html
     title= title
     meta(charset="utf-8")
     meta(name="viewport" content="width=device-width,initial-scale=1")
+    link(rel="icon", href="/favicon.ico")
+    
     link(rel="stylesheet" href="/stylesheets/semantic.min.css")
     block head
+
+
+    style.
+      .slideshow {
+        position: relative;
+        height: 300px;
+        padding: 0;
+        margin: 0 10%;
+        list-style-type: none;
+      }
+
+      .slideshow > .controls {
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        right: 0;
+
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        z-index: 3;
+        color: white;
+
+        display: flex;
+        justify-content: center;
+      }
+
+      .slideshow > .controls > .item {
+        float: left;
+        cursor: pointer;
+      }
+
+      .slideshow > .images > .item {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        margin: auto;
+
+        opacity: 0;
+        z-index: 1;
+
+        -webkit-transition: opacity 1s;
+        -moz-transition: opacity 1s;
+        -o-transition: opacity 1s;
+        transition: opacity 1s;
+      }
+
+      .slideshow > .images > .item.active {
+        opacity: 1;
+        z-index: 2;
+      }
+
+      /*Optional shizz*/
+      .slideshow > .images > .item {
+        font-size: 40;
+        padding: 40;
+        box-sizing: border-box;
+        background: #333;
+        color: #fff;
+      }
+
   body
     header.ui.inverted.center.aligned.segment
+      #kek
       .ui.container
           // Main menu
           nav.ui.secondary.pointing.inverted.menu
@@ -22,6 +89,27 @@ html
 
     // Main section
     main
+      .slideshow
+        .images
+          img.item.active(src="http://lorempixel.com/800/400/nature/1/")
+          img.item(src="http://lorempixel.com/800/400/nature/2/")
+          img.item(src="http://lorempixel.com/800/400/nature/3/")
+          img.item(src="http://lorempixel.com/800/400/nature/4/")
+          img.item(src="http://lorempixel.com/800/400/nature/5/")
+        ol.controls
+          li.item
+            i.radio.selected.icon
+          li.item
+            i.radio.icon
+          li.item
+            i.radio.icon
+          li.item
+            i.radio.icon
+          li.item
+            i.radio.icon      
+
+      #slideshow
+
       section.ui.inverted.center.aligned.segment
         .ui.text.container
           h1.ui.inverted.header Imagine-a-Company
@@ -36,5 +124,7 @@ html
     // Footer contents
     footer
 
-    // Load AMD library
-    script(src="/javascripts/amd.min.js")
+    // Scripts
+    script(src="/preact.min.js")
+    script(src="/test.js")
+

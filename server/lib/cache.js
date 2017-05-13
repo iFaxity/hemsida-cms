@@ -1,29 +1,15 @@
 const fs = require("fs");
 const path = require("path");
 
-const PAGES_DIR = path.join(__dirname, "../pages");
-const FILES = {};
+const PAGES_FILE = path.join(__dirname, "../pages.json");
+const PAGES = {};
 
-function readFile(file) {
-  return new Promise((resolve, reject) => {
-    //(err, data) => err ? reject(err) : resolve(data));
-    fs.readFile(file, "utf-8", (err, data) => {
-      if(err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
-  });
-}
-function writeFile(file, data) {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(file, data, err => err ? reject(err) : resolve());
-  });
-}
-function removeFile(file) {
-  return new Promise((resolve, reject) => {
-    fs.unlink(file, err => err ? reject(err) : resolve());
+function saveFile() {
+  const data = JSON.stringify(PAGES);
+  fs.writeFile(PAGES_FILE, data, err => {
+    if(err) {
+      throw new Error("Error saving cache! Message: " + err.message);
+    }
   });
 }
 
@@ -38,18 +24,18 @@ const Cache = {
   },
 
   /**
-   * Gets a cached file
-   * @param {String} file 
+   * Gets a cached file or gets all files no file is specified.
+   * @param {String} [file] - File to get
    */
   get(file) {
-    return new Promise((resolve, reject) => {
-      // Check if cache has a valid file
-      if (this.has(file)) {
-        resolve(FILES[file]);
-      } else {
-        reject(new Error("That file does not exist."));
-      }
-    });
+    let res = null;
+    if(!file) {
+      res = FILES;
+    } else if (this.has(file)) {
+      res = FILES[file];
+    }
+
+    return res;
   },
   /**
    * Sets new data to a cached file
@@ -57,14 +43,7 @@ const Cache = {
    * @param {String} data
    */
   set(file, data) {
-    // Check if cache has a valid file
-    if(this.has(file)) {
-      return Promise.resolve();
-    }
-
-    return writeFile(path.join(PAGES_DIR, file)).then(() => {
-      FILES[file] = data;
-    });
+    FILES[file] = data;
   },
   /**
    * Removes a file from cache
@@ -72,24 +51,20 @@ const Cache = {
    */
   remove(file) {
     // Check if cache has a valid file
-    if(!this.has(file)) {
-      return Promise.resolve();
-    }
-
-    return removeFile(path.join(PAGES_DIR, file)).then(() => {
+    if(this.has(file)) {
       delete FILES[file];
-    });
+      return true;
+    }
+    return false;
   }
 };
 
-// Read all the files from the pages directory
-fs.readdir(PAGES_DIR, (err, files) => {
+// Read the pages file
+fs.readFile(PAGES_FILE, (err, data) => {
   if (err) {
-    throw new Error("Error initializing cache! Message: " + err.message);
+    throw new Error("Error loading cache! Message: " + err.message);
   } else {
-    files.forEach(file => {
-      readFile(path.join(PAGES_DIR, file)).then(data => FILES[file] = data);
-    });
+    PAGES = JSON.parse(data);
   }
 });
 

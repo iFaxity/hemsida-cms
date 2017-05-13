@@ -5,6 +5,7 @@ CMS
         save pages content in views/pages for cache and easy editing
     remove pages
     add pages
+    seperat uploader for assets
 
 
 Website

@@ -3,7 +3,7 @@ const router = express.Router();
 const takenDays = {};
 const LOCALS = {
   title: "Booking system",
-  main: "/javascripts/book"
+  main: "book"
 };
 
 /* GET home page. */

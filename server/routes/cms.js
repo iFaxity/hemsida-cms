@@ -5,10 +5,7 @@ const express = require("express");
 const router = express.Router();
 
 const Auth = require("../lib/auth");
-const LOCALS = {
-  title: "CMS System",
-  main: "/javascripts/cms"
-};
+const Cache = require("../lib/cache");
 
 // Middleware for authentication
 function requestAuth(req, res, next) {
@@ -20,7 +17,9 @@ function requestAuth(req, res, next) {
     next();
   }, () => {
     if (req.method === "POST") {
-      res.status(400).end("Authentication error");
+      const err = new Error("Unauthorized");
+      err.status = 401;
+      next(err);
     } else {
       res.redirect("/");
     }
@@ -36,10 +35,16 @@ router.get("/", (req, res) => {
   }
   else {
     Auth.auth(token).then(() => {
-      res.render("cms/edit", LOCALS);
+      const locals = {
+        title: "CMS System",
+        main: "cms",
+        pages: Cache.getAll
+      };
+
+      res.render("cms/index", locals);
     }, err => {
       // Some kind of error happened
-      res.render("cms/index", {
+      res.render("cms/login", {
         title: "CMS Login",
         messages: {
           error: err.message
@@ -73,11 +78,6 @@ router.get("/logout", (req, res) => {
 
 
 // Edit endpoints
-router.get("/edit/:id", requestAuth, (req, res) => {
-  const { id } = req.params;
-
-  res.status(200).end("Success. id: " + id);
-});
 router.post("/edit/:id", requestAuth, (req, res) => {
   const { id } = req.params;
   const { html } = req.body;
@@ -85,9 +85,9 @@ router.post("/edit/:id", requestAuth, (req, res) => {
   fs.writeFile(path.join(__dirname, `../pages/${id}.html`), html, err => {
     if(err) {
       console.error(err);
-      res.status(400).end(`Couldn't write changes to page '${id}'`);
+      res.status(401).end(`Unauthorized`);
     } else {
-      res.status(200).end("Success. id: " + id);
+      res.status(200).end("OK. id: " + id);
     }
   });
 });

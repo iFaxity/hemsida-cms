@@ -3,7 +3,7 @@ const router = express.Router();
 
 const LOCALS = {
   title: "Webbshop",
-  entry: "/javascripts/store"
+  main: "store"
 };
 
 /* GET admin page page. */
