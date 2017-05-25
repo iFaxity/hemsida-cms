@@ -1,5 +1,3 @@
-const { h, Component, render } = preact;
-
 // Slideshow for index page
 (function() {
   const slideshow = document.querySelector(".slideshow");

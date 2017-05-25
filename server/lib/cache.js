@@ -20,7 +20,7 @@ const Cache = {
    * @param {String} file 
    */
   has(file) {
-    return FILES.hasOwnProperty(file);
+    return PAGES.hasOwnProperty(file);
   },
 
   /**
@@ -30,9 +30,9 @@ const Cache = {
   get(file) {
     let res = null;
     if(!file) {
-      res = FILES;
+      res = Object.keys(PAGES).sort();
     } else if (this.has(file)) {
-      res = FILES[file];
+      res = PAGES[file];
     }
 
     return res;
@@ -43,7 +43,7 @@ const Cache = {
    * @param {String} data
    */
   set(file, data) {
-    FILES[file] = data;
+    PAGES[file] = data;
   },
   /**
    * Removes a file from cache
@@ -52,7 +52,7 @@ const Cache = {
   remove(file) {
     // Check if cache has a valid file
     if(this.has(file)) {
-      delete FILES[file];
+      delete PAGES[file];
       return true;
     }
     return false;
@@ -64,7 +64,8 @@ fs.readFile(PAGES_FILE, (err, data) => {
   if (err) {
     throw new Error("Error loading cache! Message: " + err.message);
   } else {
-    PAGES = JSON.parse(data);
+    Object.assign(PAGES, JSON.parse(data));
+    console.log("Cache system successfully loaded!");
   }
 });
 

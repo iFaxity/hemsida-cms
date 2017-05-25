@@ -1,0 +1,1 @@
+<ui-icon class="{opts.icon} icon"></ui-icon>

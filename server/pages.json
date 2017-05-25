@@ -1,3 +1,5 @@
 {
-
+  "/index": "<p>Index</p>",
+  "/about": "<p>About</p>",
+  "/contact": "<p>Contact</p>"
 }

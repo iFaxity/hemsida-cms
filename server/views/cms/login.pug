@@ -1,9 +1,10 @@
-include layout
+extends layout
 
 block head
   style.
     body {
-      background-color: #f0f0f0; /*#DADADA*/
+      background: url(../images/bg.jpg) no-repeat fixed center;
+      /*background: #f0f0f0;*/ /*#DADADA*/
     }
 
     body > .grid {
@@ -23,20 +24,19 @@ block content
   .ui.middle.aligned.center.aligned.grid
     .column
       h2.ui.green.image.header
-        // <img src="assets/images/logo.png" class="image">
+        //<img src="assets/images/logo.png" class="image">
         | Logga in på CMS
-
-      form.ui.large.form(method="POST" action="/auth")
-        .ui.stacked.segment
+      .ui.attached.segment
+        form.ui.large.form(method="POST" action="/auth")
           .field
             .ui.left.icon.input
               i.user.icon
-              input(type="text" name="user" placeholder="Användarnamn")
+              input(type="text" name="username" placeholder="Användarnamn")
           .field
             .ui.left.icon.input
               i.lock.icon
               input(type="password" name="password" placeholder="Lösenord")
-          button.ui.fluid.large.green.submit.button Logga in
+          button.ui.fluid.large.green.button Logga in
 
       // Show error message if needed    
       if messages.error

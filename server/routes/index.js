@@ -24,23 +24,17 @@ router.post("/test/endpoint", (req, res, next) => {
 
 // Render template and append page content from pages/<filename>.html
 router.get("/*", (req, res, next) => {
-  const renderErr = (status, message) => res.render("error", { message, err: { status } });
-  const url = req.url.substr(1);
+  const path = req.url === "/" ? "/index" : req.url.replace("/\//g", ".");
+  const page = Cache.get(path);
 
-  let file;
-  if (url === "") {
-    file = "index";
-  } else {
-    // Replace every / with a .
-    file = url.replace("/\//g", ".");
-  }
-
-  Cache.get(file + ".html").then(data => {
+  if(page) {
     res.render("index", {
       title: "Lekextra",
-      content: data
+      content: page
     });
-  }, next);
+  } else {
+    next();
+  }
 });
 
 module.exports = router;

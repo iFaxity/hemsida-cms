@@ -1,7 +1,7 @@
 doctype html
 html
   head
-    title= title
+    title=`CMS | ${title}`
     meta(charset="utf-8")
     meta(name="viewport" content="width=device-width,initial-scale=1")
     link(rel="icon", href="/favicon.ico")
@@ -9,15 +9,11 @@ html
     link(rel="stylesheet" href="/stylesheets/semantic.min.css")
     link(rel="stylesheet" href="/stylesheets/style.css")
 
-    if styles
-      // Custom styles
-      link(rel="stylesheet" href="/stylesheets/#{styles}");
+    block head
+    // Kekkedikek
   body
-    main
-      block content
+    block content
 
-    footer
 
-    if main
-      // Load AMD library
-      script(data-main="/javascripts/#{main}" src="/javascripts/amd.min.js")
+    script(src="/bundle.js")
+    block script

@@ -11,23 +11,47 @@
 })(this, function(DOM) {
   class Store {
     constructor() {
-      this.state = {
-        action: null
-      };
-      this.subscriptions = [];
+      this.subscriptions = {};
+      this.nextID = 1;
+      this.isDispatching = false;
+      //TODO: Support pending and handeled stuff
     }
 
+    /**
+     * @param {Function} fn - Function to subscribe with
+     * @returns {String} ID of this subscription
+     */
     subscribe(fn) {
-      if(typeof fn !== "function") {
-        throw new TypeError("Parameter error in subscribe½");
+      if (typeof fn !== "function") {
+        throw new TypeError("Subscribe takes a function as a parameter!");
       }
-      this.subscriptions.push(fn);
+      const ID = this.nextID++;
+      this.subscriptions[ID] = fn;
+
+      return "ID_" + ID;
+    }
+    /**
+     * 
+     */
+    unsubscribe(id) {
+      let res = false;
+      if (this.subscriptions[id]) {
+        res = true;
+        delete this.subscriptions[id];
+      }
+
+      return res;
     }
     dispatch(state) {
-      this.subscriptions.forEach(fn => fn(state));
-    }
-    connect() {
-
+      if (this.isDispatching) {
+        throw new Error("Store is already dispatching!");
+      }
+      try {
+        this.isDispatching = true;
+        Object.keys(this.subscriptions).forEach(id => this.subscriptions[id](state));
+      } finally {
+        this.isDispatching = false;
+      }
     }
   }
 
