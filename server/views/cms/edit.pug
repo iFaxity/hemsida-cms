@@ -14,7 +14,7 @@ block head
     }
 
 block content
-  ui-menu(fixed vertical position="left" inverted)
+  //ui-menu(fixed="left" vertical inverted)
     ui-item(header) CMS Redigerare
     ui-item
       .ui.vertical.buttons
@@ -25,10 +25,7 @@ block content
       a.item(href="#") Bild
       a.item(href="#") Lista
       a.item(href="#") Kort
-
-  cms(title="Riot Test!")
-
-  #sidebar.ui.left.fixed.vertical.inverted.menu
+  ui-menu(fixed="left" vertical inverted)
     .header.item CMS Redigerare
     .item
       .ui.vertical.buttons
@@ -39,20 +36,18 @@ block content
           i.save.icon
           | Spara  
 
-    .header.item Komponenter
-    .menu
-      a.item(href="#") Bild
-      a.item(href="#") Lista
-      a.item(href="#") Kort
+    ui-item(header) Komponenter
+    ui-menu
+      ui-item(href="#") Bild
+      ui-item(href="#") Lista
+      ui-item(href="#") Kort
 
-  //#app!= data
-  //cms(title="Riot Test!")
+  cms(title="Riot Test!")
 
 block script
   script.
-    const [cms] = riot.mount("cms");
-    console.dir(riot.mount("*"));
-    cms.trigger("");
+    //const [cms] = riot.mount("cms");
+    const tags = riot.mount("*");
 
     // Mount all riot tags
     //riot.mount("*");

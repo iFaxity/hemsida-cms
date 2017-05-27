@@ -1,52 +1,36 @@
-<ui-button class={classes} tabindex={tabindex}>
-  <ui-icon if={icon} icon={icon}/>
+<ui-button class={classes} tabindex={opts.tabindex}>
+  <ui-icon if={opts.icon} icon={opts.icon}/>
   <yield/>
   
   <script>
-    const { isStr, classify } = require("./util.js");
-    const { icon, color, social, size, float, attach } = opts;
-    const classes = {
-      basic: opts.basic,
-      animated: opts.animated,
-      active: opts.active,
-      disabled: opts.disabled,
-      loading: opts.loading,
-      compact: opts.compact,
-      toggle: opts.toggle,
-      fluid: opts.fluid,
-      circular: opts.circular,
-      labeled: opts.labeled
-    };
+    const {
+      classify, useKey, useValueAndKey,
+      useKeyOrValueAndKey
+    } = require("./util.js");
 
-    classes[size] = size;
-    classes[color] = color;
-
-    // social or icon not both
-    if(isStr(icon)) {
-      classes.icon = true;
-      if(icon) {
-        this.icon = opts.icon;
-      }
-    } else if(isStr(social)) {
-      classes[social] = true;
-      if(social) {
-        this.icon = social;
-      }
-    }
-
-    if(isStr(float)) {
-      classes.floated = true;
-      if(float) {
-        classes[float] = true;
-      }
-    }
-    if(isStr(attach)) {
-      classes.attached = true;
-      if(attach) {
-        classes[attach] = true;
-      }
-    }
-    // Set the classes variable
-    this.classes = classify(classes, "button");
+    this.classes = classify(
+      "ui",
+      opts.color,
+      opts.size,
+      useKey(opts.basic, "basic"),
+      useKey(opts.active, "active"),
+      useKey(opts.disabled, "disabled"),
+      useKey(opts.loading, "loading"),
+      useKey(opts.labeled, "labeled"),
+      useKey(opts.circular, "circular"),
+      useKey(opts.compact, "compact"),
+      useKey(opts.fluid, "fluid"),
+      useKey(opts.positie, "positive"),
+      useKey(opts.negative, "negative"),
+      useKey(opts.primary, "primary"),
+      useKey(opts.secondary, "secondary"),
+      useKey(opts.toggle, "toggle"),
+      useKeyOrValueAndKey(opts.animated, "animated"),
+      useKeyOrValueAndKey(opts.attached, "attached"),
+      useKeyOrValueAndKey(opts.floated, "floated"),
+      useKeyOrValueAndKey(opts.icon, "icon"),
+      useKeyOrValueAndKey(opts.social, "social"),
+      "button"
+    );
   </script>  
 </ui-button>

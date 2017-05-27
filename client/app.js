@@ -1,16 +1,9 @@
 const riot = require("riot");
-//const UI_TAGS = ["button", "grid", "icon", "item", "menu", "segment"];
 
-// Main components
+// Main tags
 require("./modules/cms.tag");
-
-const isStr = str => typeof str === "string";
-
-// Get all the UI components
-/*UI_TAGS.forEach(name => {
-  require(`./modules/ui/${name}.tag`);
-});*/
-require(`./modules/ui/*.tag`, { mode: "expand" });
+// Semantic UI tags
+require("./modules/ui");
 
 if(!window.riot) {
   window.riot = riot;

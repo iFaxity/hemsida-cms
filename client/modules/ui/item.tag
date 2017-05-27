@@ -1,13 +1,20 @@
 <ui-item class={classes}>
-  <ui-icon if={icon} icon={icon}/>
+  <ui-icon if={opts.icon} icon={opts.icon}/>
+  
   <a if={opts.href} href={opts.href}><yield/></a>
   <yield if={!opts.href}/>
 
   <script>
-    const {icon} = opts;
+    const {
+      classify, useKey,
+      useKeyOrValueAndKey
+    } = require("./util");
 
-    if(icon) {
-      this.icon = icon;
-    }
+    this.classes = classify(
+      useKey(opts.header, "header"),
+      useKey(opts.active, "active"),
+      useKeyOrValueAndKey(opts.fitted, "fitted"),
+      "item"
+    );
   </script>
 </ui-item>

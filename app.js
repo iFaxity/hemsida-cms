@@ -43,7 +43,8 @@ app.use(session({
 }));
 
 // Add custom middleware
-subdomain.add({ base: index, cms, book, store });
+//subdomain.add({ base: index, cms, book, store });
+subdomain.add({base: cms});
 app.use(flash);
 app.use(subdomain);
 

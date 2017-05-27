@@ -12,7 +12,7 @@
   </ui-segment>
 
   <style>
-    cms {
+    :scope {
       margin-left: 16rem;
       display: block;
     }
