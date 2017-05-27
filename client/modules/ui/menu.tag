@@ -1,13 +1,13 @@
-<ui-menu class={className}>
+<ui-menu class={classes}>
   <yield/>
   <script>
-    const {isStr, classify} = require("./util.js");
-    const {size, width, color, attach, fixed} = opts;
-
+    const {classify, enumOf, SIZES, WIDTHS, COLORS} = require("./util.js");
+    const {size, width, color, fixed, attached, tabular} = opts;
     const classes = {
       icon: opts.icon,
       labeled: opts.labeled,
       text: opts.text,
+      attached: opts.attached,
       vertical: opts.vertical,
       stackable: opts.stackable,
       inverted: opts.inverted,
@@ -16,28 +16,22 @@
       compact: opts.compact,
       pointing: opts.pointing,
       tabular: opts.tabular,
-      fluid: opts.fluid
+      fluid: opts.fluid,
+      fixed: opts.fixed
     };
 
-    if (color) {
-      classes[color] = true;
+    // Enumerator
+    if(fixed != null) {
+      classes[fixed] = true;
+      enumOf(fixed, ["top", "right", "bottom", "left"], classes.add)
+      classes.fixed = true;
+      classes[fixed] = enumOf();
     }
-    if(size) {
-      classes[size] = true;
-    }
-    if(width) {
+    classes[size] = enumOf(size, SIZES);
+    classes[color] = enumOf(color, COLORS);
+    if(enumOf(width, WIDTH)) {
       classes[width] = true;
       classes.item = true;
-    }
-    if (isStr(attach)) {
-      if (attach)
-        classes[attach] = true;
-      classes.attached = true;
-    }
-    if (isStr(fixed)) {
-      if (fixed)
-        classes[fixed] = true;
-      classes.fixed = true;
     }
 
     this.classes = classify(classes, "menu");

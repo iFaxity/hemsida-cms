@@ -5,16 +5,16 @@ block head
     body {
       padding-top: 0;
     }
-    #app {
+    cms {
       margin: 1rem;
       margin-left: 16rem;
     }
-    .ui.menu {
+    ui-menu {
       border-radius: 0;
     }
 
 block content
-  ui-menu(fixed left vertical inverted)
+  ui-menu(fixed vertical position="left" inverted)
     ui-item(header) CMS Redigerare
     ui-item
       .ui.vertical.buttons
@@ -45,13 +45,13 @@ block content
       a.item(href="#") Lista
       a.item(href="#") Kort
 
-  #app!= data
-
-  cms(title="Riot Test!")
+  //#app!= data
+  //cms(title="Riot Test!")
 
 block script
   script.
     const [cms] = riot.mount("cms");
+    console.dir(riot.mount("*"));
     cms.trigger("");
 
     // Mount all riot tags
