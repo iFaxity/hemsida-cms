@@ -1,0 +1,16 @@
+CMS v 2
+
+expose all components from vue-mdc-web
+ability to create custom components
+
+Create, edit
+
+Serverside rendering for pages
+  * Ability to 'lock' pages for client Apps
+  * Live edit 
+
+CMS v 3
+
+Properties & pages
+
+Using different properties (Long text, Short text, Rich Text, HTML, Media (image/video))

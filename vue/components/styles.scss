@@ -1,0 +1,19 @@
+
+// Dashboard.vue
+.app-view.dashboard {
+  padding-top: 30px;
+
+  .pages {
+    min-height: 100px;
+
+    .item .remove.icon:hover {
+      cursor: pointer;
+      color: red;
+    }
+  }
+}
+
+// Editor.vue
+.app-view.editor {
+  padding: 0 15rem;
+}

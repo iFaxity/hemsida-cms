@@ -1,47 +1,12 @@
-extends layout
+doctype html
+html
+  head
+    title CMS
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width,initial-scale=1")
+    link(rel="icon" href="/favicon.ico")
 
-block head
-  style.
-    body {
-      background: url(../images/bg.jpg) no-repeat fixed center;
-    }
-
-block content
-  .ui.stackable.grid.container
-    .ten.wide.column
-      // List of pages
-      .ui.center.aligned.top.attached.inverted.green.segment
-        h3.ui.header
-          i.server.icon
-          | Sidor
-      .ui.bottom.attached.segment
-        .ui.relaxed.divided.list
-          each page in pages
-            a.item(href=`/edit${page}`)
-              i.linkify.icon
-              = page
-            //a.item(href=`/edit${page}`)= page
-
-    // Right menu
-    .five.wide.right.floated.column
-      // User settings segment
-      .ui.center.aligned.top.attached.inverted.green.segment
-        h3.ui.icon.header
-          i.settings.icon
-          | Inställningar
-      .ui.attached.segment
-        h3.header Byta Lösenord
-        form.ui.form(action="/")
-          .field
-            .ui.left.icon.input
-              i.lock.icon
-              input(type="password" name="password" placeholder="Lösenord")
-          .field
-            .ui.left.icon.input
-              i.lock.icon
-              input(type="password" name="verify" placeholder="Verifiera lösenord")
-          button.ui.primary.button Byt lösenord
-      .ui.bottom.attached.segment
-        a.ui.negative.button(href="/logout")
-          i.sign.out.icon
-          | Logga ut
+    link(rel="stylesheet" href="/app.css")
+  body
+    #app
+    script(src="/app.js")

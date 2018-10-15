@@ -1,7 +1,7 @@
-const fs = require("fs");
+const {fs} = require("mz");
 const path = require("path");
 
-const PAGES_FILE = path.join(__dirname, "../pages.json");
+const PAGES_FILE = path.join(__dirname, "./config/pages.json");
 const PAGES = {};
 
 function saveFile() {
@@ -59,14 +59,39 @@ const Cache = {
   }
 };
 
-// Read the pages file
-fs.readFile(PAGES_FILE, (err, data) => {
-  if (err) {
-    throw new Error("Error loading cache! Message: " + err.message);
+function renderData(data) {
+  if(typeof data === "string") {
+    return data;
   } else {
+    const { tag, props, children } = data;
+    const el = `<${tag}`;
+
+    // give the element props
+    if(props && props.length) {
+      el += Object.keys(props).map(key => renderData(props[key])).join("");
+    }
+
+    el += ">";
+    // Render child tags
+    if (children && children.length) {
+      el += children.map(renderData).join("");
+    }
+
+    el += `</${tag}>`;
+    return el;
+  }  
+}
+
+async function readCache() {
+  try {
+    const data = await fs.readFile(PAGES_FILE);
     Object.assign(PAGES, JSON.parse(data));
     console.log("Cache system successfully loaded!");
+  } catch (ex) {
+    throw new Error("Error loading cache! Message: " + ex.message);
   }
-});
+}
 
+// Read the pages file
+readCache();
 module.exports = Cache;

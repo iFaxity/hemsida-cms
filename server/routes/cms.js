@@ -1,92 +1,128 @@
-const fs = require("fs");
-const path = require("path");
-
-const express = require("express");
-const router = express.Router();
+const Router = require("koa-router")();
+Router.prefix("/cms");
 
 const Auth = require("../lib/auth");
 const Cache = require("../lib/cache");
 
-// Middleware for authentication
-function requestAuth(req, res, next) {
-  const { token } = req.session;
+/*
+  API endpoints (maybe split them up to another file)
+*/
+Router.get("/api/pages", Auth.middleware, async ctx => {
+  const pages = Cache.get();
+  ctx.status = 200;
+  ctx.body = JSON.stringify(pages);
+});
+Router.delete("/api/pages/:page", Auth.middleware, async ctx => {
+  const { page } = ctx.params;
+  const res = Cache.remove(`/${page}`);
+  ctx.body = `{"ok": ${res}}`;
+});
+Router.get("/api/edit/:page", Auth.middleware, async ctx => {
+  const { token } = ctx.request.body;
+  const { page } = ctx.params;
+  let body;
 
-  Auth.auth(token).then(() => {
-    // set user into request?
-    //req.user = {};
-    next();
-  }, () => {
-    if (req.method === "POST") {
-      const err = new Error("Unauthorized");
-      err.status = 401;
-      next(err);
-    } else {
-      res.redirect("/");
-    }
-  });
-}
+  const data = Cache.get(page);
+  ctx.status = 200;
+  ctx.body = JSON.stringify(data);
+});
+Router.post("/api/edit/:page", Auth.middleware, async ctx => {
+  const { data } = ctx.request.body;
+  const { page } = ctx.params;
+  Cache.set(page, JSON.stringify(data));
+  ctx.body = `{"ok": true}`;
+});
 
-/* GET admin page page. */
-router.get("/", (req, res) => {
-  const { token } = req.session;
-  const locals = { title: "Login" };
+/*
+  Authentication routes (maybe use a framework instead)
+*/
+Router.post("/auth/login", async ctx => {
+  const { username, password } = ctx.request.body;
+  let body;
 
-  if(!token) {
-    res.render("cms/login", locals);
-  } else {
-    Auth.auth(token).then(() => {
-      res.render("cms/index", {
-        title: "Kontrollpanel",
-        pages: Cache.get()
-      });
-    }, err => {
-      // Some kind of error happened
-      locals.messages = { error: err.message };
-      res.render("cms/login", locals);
-    });
+  // Temporary user login system...exchange for passport in the future
+  try {
+    body = await Auth.login(username, password);
+    ctx.status = 200;
+  } catch (ex) {
+    body = { header: "Verifieringsfel", message: ex.message };
+    ctx.status = 400;
   }
+
+  ctx.body = JSON.stringify(body);
+});
+Router.post("/auth/logout", async ctx => {
+  const { token } = ctx.request.body;
+  let body;
+
+  try {
+    await Auth.logout(token);
+    body = {ok: true};
+    ctx.status = 200;
+  } catch (ex) {
+    body = { header: "Verifieringsfel", message: ex.message };
+    ctx.status = 400;
+  }
+
+  ctx.body = JSON.stringify(body);
+});
+Router.post("/auth/changePassword", async ctx => {
+  const { token, newPassword } = ctx.request.body;
+  let body;
+
+  try {
+    await Auth.changePassword(token, newPassword);
+    body = { ok: true };
+    ctx.status = 200;
+  } catch (ex) {
+    body = { header: "Invalid token", message: ex.message };
+    ctx.status = 400;
+  }
+
+  ctx.body = JSON.stringify(body);
+});
+Router.post("/auth/renewToken", async ctx => {
+  const { token } = ctx.request.body;
+  let body;
+
+  try {
+    body = await Auth.renewToken(token);
+    ctx.status = 200;
+  } catch (ex) {
+    body = { header: "Invalid token", message: ex.message };
+    ctx.status = 400;
+  }
+
+  ctx.body = JSON.stringify(body);
+});
+// TODO: implement this (only allow localhost)
+Router.put("/auth/createUser", async ctx => {
+  ctx.status = 500;
+  ctx.body = JSON.stringify({ message: "Unknown error happened" });
+
+  /*
+  const {username, password} = ctx.request.body;
+
+  try {
+    await Auth.createUser(username, password, {
+      // Additional user info here (payload)
+      name: "",
+      email: ""
+    });
+    ctx.status = 200;
+  } catch (ex) {
+    const body = { header: "Kunde inte skapa konto.", message: ex.message };
+    ctx.status = 400;
+    ctx.body = JSON.stringify(body);
+  }*/
 });
 
-
-// Used to authenticate and logout the user
-router.post("/auth", (req, res) => {
-  const { username, password } = req.body;
-
-  // Temporary user login system
-  Auth.login(username, password).then(token => {
-    req.session.token = token;
-    res.redirect("/");
-  }, err => {
-    req.flash("error", err.message);
-    res.redirect("/");
-  });
-});
-router.get("/logout", (req, res) => {
-  const { token } = req.session;
-  
-  // Destroy the login session
-  const success = Auth.logout(token);
-  req.session.destroy();
-  res.redirect("/");
+/* 
+  GET admin page page.
+  Or render a 404?
+*/
+Router.get("*", async ctx => {
+  await ctx.render("cms/index");
 });
 
-// Edit endpoints
-router.get("/edit/:id", requestAuth, (req, res) => {
-  const path = "/" + req.params.id;
-  const data = Cache.get(path);
-
-  res.render("cms/edit", {
-    title: `Redigerar ${path}`,
-    path, data
-  });
-});
-router.post("/edit/:id", requestAuth, (req, res) => {
-  const id = "/" + req.params.id;
-  const { html } = req.body;
-
-  Cache.set(id, html);
-  res.status(200).end("OK");
-});
-
-
-module.exports = router;
+module.exports = Router;

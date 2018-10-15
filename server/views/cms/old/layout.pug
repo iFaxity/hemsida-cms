@@ -1,0 +1,32 @@
+doctype html
+html
+  head
+    title=`CMS | ${title}`
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width,initial-scale=1")
+    link(rel="icon", href="/favicon.ico")
+
+    link(rel="stylesheet" href="/stylesheets/semantic.min.css")
+    link(rel="stylesheet" href="/stylesheets/style.css")
+    style.
+      body {
+        background: url(../images/bg.jpg) no-repeat fixed center;
+      }
+      #app, #app > .grid {
+        height: 100%;
+      }
+
+      #app .image {
+        margin-top: -100px;
+      }
+
+      #app .column {
+        max-width: 450px;
+      }
+
+
+    block head
+    // Kekkedikek
+  body
+    block content
+    script(src="/bundle.js")

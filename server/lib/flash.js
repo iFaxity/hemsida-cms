@@ -1,14 +1,14 @@
-module.exports = (req, res, next) => {
-  const { session } = req;
-  if(!session) {
+module.exports = async (ctx, next) => {
+  const { session } = ctx;
+  if (!session) {
     throw new Error("flash needs session to work!");
   }
-  res.locals.messages = session.messages || {};
-
+  ctx.state.messages = session.messages || {};
   const messages = session.messages = {};
-  req.flash = (key, value) => {
+  
+  ctx.flash = (key, value) => {
     if (typeof key === "string") {
-      if(typeof value === "string") {
+      if (value !== undefined) {
         messages[key] = value;
       } else {
         return messages[key];
@@ -18,5 +18,5 @@ module.exports = (req, res, next) => {
     }
   };
 
-  next();
+  await next();
 };
