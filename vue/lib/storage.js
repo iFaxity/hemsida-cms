@@ -1,35 +1,47 @@
 let isSupported = true;
 // Check for StorageAPI support
 try {
-  const key = "_";
+  const key = '_';
   localStorage.setItem(key, true);
   localStorage.removeItem(key);
 } catch(ex) {
   isSupported = false;
 }
 
-if (!isSupported) {
-  let data = {};
-  const storage = {
-    setItem(key, value) {
-      data[key] = value;
-    },
-    getItem(key) {
-      if (data.hasOwnProperty(key)) {
-        return data[key];
-      }
-    },
-    removeItem(key) {
-      delete data[key];
-    },
-    clear() {
-      data = {};
+export default {
+  data: {},
+  get(key) {
+    if(isSupported) {
+      return localStorage.getItem(key);
     }
-  };
+    return this.data.hasOwnProperty(key) ? this.data[key] : null;
+  },
+  set(key, value) {
+    if(isSupported) {
+      return localStorage.setItem(key);
+    }
 
-  try {
-    window.localStorage = storage;
-  } catch(ex) {
-    alert("This webpage does not support incognito mode on your device! Please disable incognito mode!")
+    // Emulate null behaviour of storage api
+    if(value === null) {
+      value = 'null';
+    }
+    this.data[key] = value;
+  },
+  has(key) {
+    return this.get(key) !== null;
+  },
+  remove(key) {
+    if(isSupported) {
+      return localStorage.removeItem(key);
+    }
+
+    delete this.data[key];
+  },
+  clear() {
+    if(isSupported) {
+      return localStorage.clear();
+    }
+
+    this.data = {};
   }
-}
+};
