@@ -4,13 +4,13 @@
  * Module dependencies.
  */
 const http = require('http');
-const app = require('../www/app');
+const app = require('../cms/server/app');
 const { normalizePort, onListening, onError } = require('./util');
 
 /**
  * Get port from environment.
  */
-const PORT = normalizePort(process.env.PORT) || 3001;
+const PORT = normalizePort(process.env.PORT) || 3000;
 
 /**
  * Create HTTP server.

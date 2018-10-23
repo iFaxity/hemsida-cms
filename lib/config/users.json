@@ -1,0 +1,16 @@
+{
+	"admin": {
+		"password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+		"token": "ZW+qvoUhce8aoFV0jpilxGy5JF2kZ7egnL9WSHphzcw=",
+		"expires": 1540936441429,
+		"payload": {
+			"name": "Administratör",
+			"roles": [
+				"page.all",
+				"media.all",
+				"settings.all",
+				"accounts.all"
+			]
+		}
+	}
+}
