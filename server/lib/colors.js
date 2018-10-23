@@ -32,17 +32,28 @@ const COLORS = {
 function formatColor(str, start, end) {
   let value = `\x1b[${start}m${str}`;
   if(end) {
-    value += "\x1b[${end}m";
+    value += `\x1b[${end}m`;
   }
   return value;
 }
 
-
 function color(name, str) {
-  if(!COLORS[name]) {
+  let color;
+  if(typeof name === 'number') {
+    color = name;
+  } else if(typeof name === 'string') {
+    color = COLORS[name];
+  }
+
+  const hasColor = Object.keys(COLORS).some(name => COLORS[name] === color);
+  if(!hasColor) {
     throw new TypeError(`Color '${name}' does not exist!`);
   }
-  return formatColor(str, COLORS[name], COLORS.reset);;
+
+  return formatColor(str, color, COLORS.reset);
 }
 
-module.exports = color;
+module.exports = {
+  color,
+  COLORS,
+};

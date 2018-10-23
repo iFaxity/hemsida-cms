@@ -1,24 +1,32 @@
 <template lang="pug">
 mdc-app
-  mdc-toolbar(slot="toolbar")
-    mdc-toolbar-row
-      mdc-toolbar-icon(icon="download")
-
   mdc-drawer(slot="drawer", type="permanent")
-    mdc-drawer-item(text="hello")
+    mdc-drawer-item(text="Hem", to="/dashboard")
+      mdc-list-item-graphic(slot="graphic", icon="dashboard")
+    mdc-drawer-item(text="Sidor", to="/pages")
+      mdc-list-item-graphic(slot="graphic", icon="insert_drive_file")
+    mdc-drawer-item(text="Media", to="/media")
+      mdc-list-item-graphic(slot="graphic", icon="perm_media")
+    mdc-drawer-item(text="Inställningar", to="/settings")
+      mdc-list-item-graphic(slot="graphic", icon="settings")
+    mdc-drawer-item(v-if="accountsAccess", text="Konton", to="/accounts")
+      mdc-list-item-graphic(slot="graphic", icon="supervisor_account")
+    // Logout item
+    mdc-drawer-item(text="Logga ut", to="/logout")
+      mdc-list-item-graphic(slot="graphic", icon="settings_power")
+
 
   main
-    mdc-snackbar(ref="snackbar")
     router-view.app
 </template>
 
 <script>
 export default {
-  created() {
-    this.$snackbar.$on(this.$refs.snackbar.show);
-  },
-  beforeDestroy() {
-    this.$snackbar.$off(this.$refs.snackbar.show);
+  name: 'CmsLayout',
+  computed: {
+    accountsAccess() {
+      return this.$auth.hasRole('accounts');
+    }
   }
 };
 </script>

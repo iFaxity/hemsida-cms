@@ -1,47 +1,69 @@
-import Dashboard from "../components/Dashboard.vue";
-import Login from "../Login.vue";
-import Editor from "../components/Editor.vue";
-import DashboardLayout from "../components/Layout.vue";
-import { Auth } from "./auth";
+/* Lazy load the routes */
+const Dashboard = () => import('../components/Dashboard.vue');
+const EditFields = () => import('../components/EditFields.vue');
+const EditPage = () => import('../components/EditPage.vue');
+const Layout = () => import('../components/Layout.vue');
+const Login = () => import('../components/Login.vue');
+const Pages = () => import('../components/Pages.vue');
+
+import { Auth } from './auth';
 
 export default [
-  { path: "/", redirect: "/login" },
+  { path: '/', redirect: '/login' },
   {
-    path: "/login",
+    path: '/login',
     component: Login,
     meta: {
-      title: "Logga in"
+      title: 'Logga in'
     },
     beforeEnter(to, from, next) {
-      let path;
-
       if (Auth.isLoggedIn) {
         const { redirect } = to.query;
-
-        path = redirect || (from.path || from.path === "/" ? "/dashboard" : from.path);
+        const path = redirect || (from.path == '/' ? '/dashboard' : from.path);
+        next(path);
       }
-      next(path);
     }
   },
   {
-    path: "/dashboard",
-    component: DashboardLayout,
+    path: '/logout',
+    beforeEnter(to, from, next) {
+      Auth.logout();
+      next('/login');
+    }
+  },
+  {
+    path: '/dashboard',
+    component: Layout,
     meta: {
       requiresAuth: true
     },
     children: [
       {
-        path: "/",
+        path: '/',
         component: Dashboard,
         meta: {
-          title: "Dashboard",
+          title: 'Dashboard',
         }
       },
       {
-        path: "edit/:page*",
-        component: Editor,
+        path: '/pages',
+        component: Pages,
         meta: {
-          title: "Editor"
+          title: 'Pages',
+        }
+      },
+      {
+        path: '/edit/page/:page',
+        component: EditPage,
+        meta: {
+          title: 'Edit Page'
+        }
+      },
+      {
+        path: '/edit/fields/:field',
+        component: EditFields,
+        meta: {
+          title: 'Edit Fields'
         }
       }
     ]

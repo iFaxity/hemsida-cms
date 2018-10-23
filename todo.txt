@@ -2,18 +2,15 @@
 [X]     login page
 [O]     edit page
 [ ]         edit properties (Like any other Headless CMS)
-[ ]         templates & text editing
-[ ]         save pages content in views/pages for cache and easy editing
+[ ]         after edit create cached version (check each 10 minutes for changes in cache)
 [ ]     remove pages
 [ ]     add pages
 [ ]     asset manager (Or maybe just enable uploading to specific directory in property editor)
-[ ]     addons (menu, facebook, maps)
 
 
 [ ] Website
-[ ]     products
 [ ]     home page
-[ ]         news feed (facebook?)
+[ ]         news feed
 [ ]     contact page
 [ ]         address
 [ ]         map

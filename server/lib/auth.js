@@ -1,17 +1,15 @@
-const path = require("path");
-//const bcrypt = require("bcrypt");
-const sha256 = require("crypto").createHash("sha256");
-const { fs, crypto } = require("mz");
+const path = require('path');
+const { fs, crypto } = require('mz');
+const { color, COLORS } = require('./colors');
 
-const SALT_ROUNDS = 10;
-const AUTH_FILE = path.join(__dirname, "./config/users.json");
-const TOKEN_EXPIRE = 24*60*60*1000; // 1 day/24 hours
+const AUTH_FILE = path.join(__dirname, './config/users.json');
+const TOKEN_EXPIRE = 7*24*60*60*1000; // 7 days / 1 week
 
 async function createToken(user) {
   // Generates a token used for identification
   const buffer = await crypto.randomBytes(32);
   const auth = {
-    token: buffer.toString("base64"),
+    token: buffer.toString('base64'),
     expires: Date.now() + TOKEN_EXPIRE
   };
 
@@ -21,12 +19,23 @@ async function createToken(user) {
   }
   return auth;
 };
-async function saveChanges() {
+async function saveAuth() {
   // Saves user changes to file
-  const data = JSON.stringify(Auth.users, null, "\t");
+  const data = JSON.stringify(Auth.users, null, '\t');
   await fs.writeFile(AUTH_FILE, data);
 };
+async function loadAuth() {
+  // Read data
+  try {
+    const data = await fs.readFile(AUTH_FILE, 'utf-8');
+    Auth.users = JSON.parse(data);
+    console.log(color(COLORS.blue, 'Successfully loaded authentication system'));
+  } catch (ex) {
+    console.log(color(COLORS.red, `Error loading authentication system: ${ex.message}`))
+  }
+}
 
+// TODO: Create multiple token system. Only recreate token if expired.
 const Auth = {
   /**
    * Users store
@@ -46,7 +55,7 @@ const Auth = {
    * @param {String} token
    */
   findUser(token) {
-    const {users} = this;
+    const { users } = this;
     let user;
 
     const match = Object.keys(users).some(name => {
@@ -57,6 +66,28 @@ const Auth = {
   },
 
   /**
+   * 
+   * @param {*} token - Access token
+   * @param {String} role - Role to check 
+   */
+  hasRole(token, role) {
+    const user = this.findUser(token);
+
+    try {
+      const [ roleKey, roleAccess ] = role.split('.');
+
+      // Check if we have access to the 
+      return user.payload.roles.some(userRole => {
+        const [ key, access ] = userRole.split('.');
+        return roleKey == key && (access == 'all' || access == roleAccess);
+      });
+    } catch(ex) {
+      return false;
+    }
+  },
+
+
+  /**
    * Creates a new user
    * @param {String} username
    * @param {String} password
@@ -64,15 +95,19 @@ const Auth = {
   async createUser(username, password, payload) {
     // Creates a new user but does not log the user in
     if (this.hasUser(username)) {
-      throw new Error("User already exists!");
+      throw new Error('User already exists!');
     } else {
       // Hash the password
-      //const password = await bcrypt.hash(password, SALT_ROUNDS);
-      const password = sha256.update(password, "utf-8").digest("hex");
-      this.users[username] = { token: null, expires: null, password, payload };
+      const sha256 = crypto.createHash('sha256');
+      this.users[username] = {
+        token: null,
+        expires: null,
+        password: sha256.update(password, 'utf-8').digest('hex'),
+        payload
+      };
 
       // Save changes to file
-      await saveChanges();
+      await saveAuth();
     }
   },
   /**
@@ -84,13 +119,13 @@ const Auth = {
     const user = this.findUser(token);
     if (user) {
       // Hash the password
-      //user.password = await bcrypt.hash(newPassword, SALT_ROUNDS);
-      user.password = sha256.update(password, "utf-8").digest("hex");
-      await saveChanges();
+      const sha256 = crypto.createHash('sha256');
+      user.password = sha256.update(password, 'utf-8').digest('hex');
+      await saveAuth();
       return;
     }
 
-    throw new Error("Password change failed. No user matches that token!");
+    throw new Error('Password change failed. No user matches that token!');
   },
   /**
    * Renews a session by creating another token
@@ -101,11 +136,11 @@ const Auth = {
 
     if (user) {
       const auth = await createToken(user);
-      await saveChanges();
+      await saveAuth();
 
       return auth;
     }
-    throw new Error("Token renewal failed. No user matches that token!");
+    throw new Error('Token renewal failed. No user matches that token!');
   },
 
   /**
@@ -114,11 +149,11 @@ const Auth = {
    */
   auth(token) {
     // TODO: Token expiration after 24 hours
-    if (typeof token === "string") {
+    if (typeof token === 'string') {
       const user = this.findUser(token);
       return user && user.expires > Date.now();
     } else {
-      throw new Error("Token needs to be a string.");
+      throw new Error('Token needs to be a string.');
     }
   },
   /**
@@ -126,16 +161,16 @@ const Auth = {
    * @param {String} token 
    */
   async logout(token) {
-    if(typeof token !== "string") {
-      throw new Error("Token needs to be a string!");
+    if(typeof token !== 'string') {
+      throw new Error('Token needs to be a string!');
     }
     const user = this.findUser(token);
 
-    // "Nullify" the token & expiration on logout
+    // 'Nullify' the token & expiration on logout
     if (user) {
       user.token = null;
       user.expires = null;
-      await saveChanges();
+      await saveAuth();
       return true;
     }
 
@@ -149,55 +184,54 @@ const Auth = {
   async login(username, password) {
     // Used to generate a token for a user
     if (!this.hasUser(username)) {
-      throw new Error("Invalid credentials!");
+      throw new Error('Invalid credentials!');
     } else {
       // Check if the passwords match
       const user = this.users[username];
-      //const match = await bcrypt.compare(password, user.password);
-      const match = user.password === sha256.update(password, "utf-8").digest("hex");
+      const sha256 = crypto.createHash('sha256');
+      const hash = sha256.update(password, 'utf-8').digest('hex');
 
-      if(match) {
-        const { token, expires } = await createToken(user);
-        await saveChanges();
+      if(user.password === hash) {
+        const { token, expires, payload } = user;
+        // Recreate token only if its invalid
+        if(expires < Date.now()) {
+          await createToken(user);
+          await saveAuth();
+        }
 
-        return { token, expires, payload: user.payload };
+        return { token, expires, payload };
       }
       
-      throw new Error("Invalid credentials!");
+      throw new Error('Invalid credentials!');
     }
   },
 
   /**
    * Authenticates before continuing the route
-   * @param {Object} ctx 
-   * @param {Function} next
+   * @param {String} role - Role required to run this route
    */
-  middleware(ctx, next) {
-    let token;
-    if (ctx.method === "POST") {
-      token = ctx.request.body.token;
-    } else {
-      token = ctx.request.query.token;
-    }
+  middleware(role) {
+    return (ctx, next) => {
+      const hasBody = ctx.method == 'POST' || ctx.method == 'PUT';
+      const { token } = hasBody ? ctx.request.body : ctx.request.query;
   
-    if(token && this.auth(token)) {
-      next();
-    } else {
-      ctx.status = 400;
-      ctx.body = JSON.stringify({
-        header: "Verifieringsfel",
-        message: "Token not valid. Try logging in again!"
-      });
+      try {
+        if(!token) {
+          throw new Error('Ingen åtkomsstoken skickad.')
+        } else if(!Auth.auth(token)) {
+          throw new Error('Åtkomsttoken ogiltig.');
+        } else if(role && !this.hasRole(token, role)) {
+          throw new Error('Åtkomst nekad till resursen');
+        }
+
+        next();
+      } catch(ex) {
+        ctx.status = 403;
+        ctx.body = JSON.stringify({ message: ex.message });
+      }
     }
   }
 };
 
-// Read data
-fs.readFile(AUTH_FILE, "utf-8").then(data => {
-  Auth.users = JSON.parse(data);
-  console.log("Successfully loaded authentication system!");
-}).catch(err => {
-  console.error(err);
-});
-
+loadAuth();
 module.exports = Auth;

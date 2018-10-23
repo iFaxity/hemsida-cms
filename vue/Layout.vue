@@ -1,13 +1,19 @@
 <template lang="pug">
 #app.mdc-typography
-  //toaster
-  mdc-snackbar(ref="snackbar")
   router-view.app-view
-
+  mdc-snackbar(ref="snackbar", align-start)
 </template>
 
 <script>
 export default {
-  name: "App",
+  name: 'App',
+  mounted() {
+    this.$snackbar.$on(this.$refs.snackbar.show);
+  },
+  beforeDestroy() {
+    this.$snackbar.$off(this.$refs.snackbar.show);
+  }
 };
 </script>
+
+

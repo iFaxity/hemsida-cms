@@ -17,3 +17,36 @@
 .app-view.editor {
   padding: 0 15rem;
 }
+
+
+#create-page .mdc-dialog__body {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.edit-page {
+  & .fields {
+    display: flex;
+    flex-direction: column;
+
+    & .field {
+      background: #f5f5f5;
+      border-radius: 1em;
+      padding: 1em;
+      flex: 1;
+      margin: 0.5em 0;
+
+      & .slug {
+        display: block;
+        font-size: 1.3em;
+        margin-bottom: 0.5em;
+      }
+
+      
+      & .mdc-text-field--textarea .mdc-floating-label {
+        background: none;
+      }
+    }
+  }
+}

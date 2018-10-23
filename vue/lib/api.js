@@ -1,43 +1,47 @@
-// Set API fetch shorthand
+import { Auth } from './auth';
+
 function param(params) {
-  // Only an object or array is allowed
-  if ((!params && typeof params !== 'object') && !Array.isArray(params))  {
+  if(!params || !(typeof params == 'object' || Array.isArray(params))){
     throw new TypeError('Parameter \'params\' is not an object or an array');
   }
 
-  // Remove all null and undefined values and encode the key's and values
-  const arr = Object.keys(params).filter((key) => params[key] !== undefined).map((key) => {
-    return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
-  });
-
-  // Join with & sign
-  return arr.length > 0 ? arr.join('&') : null;
+  return Object.entries(params)
+  .filter(item => item[1] !== undefined)
+  .map(item => `${item[0]}=${encodeURIComponent(item[1])}`)
+  .join('&');
 }
 
-async function request(root, path, { method, body }) {
-  method = method.toLowerCase();
-  const opts = {
-    method: method || 'get',
-    headers: {
-      'Accept': 'application/json'
-    }
-  };
+async function request(root, path, { method, body } = {}) {
+  body = body || {};
+  method = method ? method.toLowerCase() : 'get';
+  const headers = new Headers({
+    'Accept': 'application/json'
+  });
 
+  // Add token to api request
+  if(!Auth.isLoggedIn) {
+    await Auth.renewToken();
+  }
+
+  body.token = Auth.token;
   if (method === 'post' || method == 'put') {
     if (typeof body === 'object' || Array.isArray(body)) {
-      opts.headers['Content-Type'] = 'application/json';
-      opts.body = JSON.stringify(body);
+      headers.append('Content-Type', 'application/json');
+      body = JSON.stringify(body);
     }
   } else if(body) {
     const query = param(body);
     path = `${path}?${query}`;
+    body = undefined; // unset body
   }
 
-  const res = await fetch(root + path, opts);
+  const res = await fetch(root + path, { method, headers, body });
+  const json = await res.json();
+  // Only let 2xx requests be resolved
   if (!res.ok) {
-    throw 'Verifieringsfel';
+    throw new Error(json.message || 'Generellt fel');
   }
-  return res.json();
+  return json;
 }
 
 export default {
@@ -48,7 +52,7 @@ export default {
       
       Object.defineProperty(Vue.prototype, '$api', {
         writable: false,
-        value: request.bind(this, root)
+        value: request.bind(this, root),
       });
     }
   }

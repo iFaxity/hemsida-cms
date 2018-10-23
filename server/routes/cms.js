@@ -1,42 +1,90 @@
-const Router = require("koa-router")();
-Router.prefix("/cms");
+const Router = require('koa-router')();
+Router.prefix('/cms');
 
-const Auth = require("../lib/auth");
-const Cache = require("../lib/cache");
+const Auth = require('../lib/auth');
+const Page = require('../lib/page');
 
 /*
   API endpoints (maybe split them up to another file)
 */
-Router.get("/api/pages", Auth.middleware, async ctx => {
-  const pages = Cache.get();
+Router.get('/api/page', Auth.middleware('page.read'), async ctx => {
+  const pages = Page.get();
   ctx.status = 200;
   ctx.body = JSON.stringify(pages);
 });
-Router.delete("/api/pages/:page", Auth.middleware, async ctx => {
+Router.get('/api/page/:page', Auth.middleware('page.read'), async ctx => {
   const { page } = ctx.params;
-  const res = Cache.remove(`/${page}`);
-  ctx.body = `{"ok": ${res}}`;
-});
-Router.get("/api/edit/:page", Auth.middleware, async ctx => {
-  const { token } = ctx.request.body;
-  const { page } = ctx.params;
-  let body;
 
-  const data = Cache.get(page);
+  const data = Page.get(page);
   ctx.status = 200;
   ctx.body = JSON.stringify(data);
 });
-Router.post("/api/edit/:page", Auth.middleware, async ctx => {
+Router.put('/api/page/:page', Auth.middleware('page.create'), async ctx => {
   const { data } = ctx.request.body;
   const { page } = ctx.params;
-  Cache.set(page, JSON.stringify(data));
-  ctx.body = `{"ok": true}`;
+  let body;
+
+  // Set default data
+  Object.assign(data, {
+    published: false,
+    fields: {},
+  });
+
+  try {
+    if(Page.has(page)) {
+      ctx.body = { message: 'Sidan finns redan' };
+      ctx.status = 401;
+    } else {
+      Page.set(page, data);
+      ctx.body = { ok: true };
+      ctx.status = 200;
+    }
+  } catch(ex) {
+    body = { message: ex.message };
+    ctx.status = 400;
+  }
+  ctx.body = JSON.stringify(body);
+});
+Router.post('/api/page/:page', Auth.middleware('page.update'), async ctx => {
+  const { page } = ctx.params;
+  const { data } = ctx.request.body;
+  let body;
+
+  if(Page.has(page)) {
+    try {
+      Page.set(page, data);
+      body = { ok: true };
+      ctx.status = 200;
+    } catch(ex) {
+      body = { message: ex.message };
+      ctx.status = 500;
+    }
+  } else {
+    body = { message: 'Sidan finns inte' };
+    ctx.status = 401;
+  }
+
+  ctx.body = JSON.stringify(body);
+});
+Router.delete('/api/page/:page', Auth.middleware('page.remove'), async ctx => {
+  const { page } = ctx.params;
+  let body;
+
+  try {
+    await Page.remove(`/${page}`);
+    ctx.body = { ok: true };
+    ctx.status = 200;
+  } catch(ex) {
+    body = { message: ex.message };
+    ctx.status = 400;
+  }
+  ctx.body = JSON.stringify(body);
 });
 
 /*
-  Authentication routes (maybe use a framework instead)
+  Authentication routes
 */
-Router.post("/auth/login", async ctx => {
+Router.post('/auth/login', async ctx => {
   const { username, password } = ctx.request.body;
   let body;
 
@@ -45,28 +93,28 @@ Router.post("/auth/login", async ctx => {
     body = await Auth.login(username, password);
     ctx.status = 200;
   } catch (ex) {
-    body = { header: "Verifieringsfel", message: ex.message };
-    ctx.status = 400;
+    body = { message: 'Ogiltiga inloggnings uppgifter' };
+    ctx.status = 401;
   }
 
   ctx.body = JSON.stringify(body);
 });
-Router.post("/auth/logout", async ctx => {
+Router.post('/auth/logout', Auth.middleware(), async ctx => {
   const { token } = ctx.request.body;
   let body;
 
   try {
     await Auth.logout(token);
-    body = {ok: true};
+    body = { ok: true };
     ctx.status = 200;
   } catch (ex) {
-    body = { header: "Verifieringsfel", message: ex.message };
+    body = { message: ex.message };
     ctx.status = 400;
   }
 
   ctx.body = JSON.stringify(body);
 });
-Router.post("/auth/changePassword", async ctx => {
+Router.post('/auth/changePassword', Auth.middleware(), async ctx => {
   const { token, newPassword } = ctx.request.body;
   let body;
 
@@ -75,13 +123,13 @@ Router.post("/auth/changePassword", async ctx => {
     body = { ok: true };
     ctx.status = 200;
   } catch (ex) {
-    body = { header: "Invalid token", message: ex.message };
+    body = { message: ex.message };
     ctx.status = 400;
   }
 
   ctx.body = JSON.stringify(body);
 });
-Router.post("/auth/renewToken", async ctx => {
+Router.post('/auth/renewToken', Auth.middleware(), async ctx => {
   const { token } = ctx.request.body;
   let body;
 
@@ -89,40 +137,36 @@ Router.post("/auth/renewToken", async ctx => {
     body = await Auth.renewToken(token);
     ctx.status = 200;
   } catch (ex) {
-    body = { header: "Invalid token", message: ex.message };
+    body = { message: ex.message };
     ctx.status = 400;
   }
 
   ctx.body = JSON.stringify(body);
 });
-// TODO: implement this (only allow localhost)
-Router.put("/auth/createUser", async ctx => {
-  ctx.status = 500;
-  ctx.body = JSON.stringify({ message: "Unknown error happened" });
-
-  /*
-  const {username, password} = ctx.request.body;
+// TODO: implement this (only allow admin roles)
+Router.put('/auth/createUser', Auth.middleware('account.create'), async ctx => {
+  let body;
+  const { username, password, roles, name } = ctx.request.body;
 
   try {
     await Auth.createUser(username, password, {
       // Additional user info here (payload)
-      name: "",
-      email: ""
+      name, roles
     });
     ctx.status = 200;
   } catch (ex) {
-    const body = { header: "Kunde inte skapa konto.", message: ex.message };
-    ctx.status = 400;
+    body = { message: ex.message };
+    ctx.status = 500;
+  }
+
+  if(body) {
     ctx.body = JSON.stringify(body);
-  }*/
+  }
 });
 
-/* 
-  GET admin page page.
-  Or render a 404?
-*/
-Router.get("*", async ctx => {
-  await ctx.render("cms/index");
+// Show cms page
+Router.get('*', async ctx => {
+  await ctx.render('cms/index');
 });
 
 module.exports = Router;

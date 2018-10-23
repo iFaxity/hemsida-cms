@@ -1,5 +1,55 @@
 {
-  "/index": "<p>Index</p>",
-  "/about": "<p>About</p>",
-  "/contact": "<p>Contact</p>"
+  "index": {
+    "fields": {
+      "title": {
+        "type": "paragraph",
+        "label": "SEO Titel",
+        "value": "Min hemsida"
+      },
+      "body": {
+        "type": "text",
+        "label": "Sidinnehåll",
+        "value": "Detta är min nya hemsida. Här kommer jag lägga upp intressanta artiklar."
+      }
+    },
+    "published": true,
+    "label": "Hemsida"
+  },
+  "about": {
+    "fields": {
+      "title": {
+        "type": "paragraph",
+        "label": "SEO Titel",
+        "value": "Min hemsida"
+      },
+      "likes_cookies": {
+        "type": "boolean",
+        "label": "Tycker om kakor",
+        "value": true
+      },
+      "body": {
+        "type": "text",
+        "label": "Sidinnehåll",
+        "value": "Jag gillar att kolla på film och äta chips."
+      }
+    },
+    "published": true,
+    "label": "Kort info om oss"
+  },
+  "contact": {
+    "fields": {
+      "title": {
+        "type": "paragraph",
+        "label": "SEO Titel",
+        "value": "Om oss"
+      },
+      "body": {
+        "type": "text",
+        "label": "Sidinnehåll",
+        "value": "Du kan kontakta mig på fisk@grymsida.com eller på facebook."
+      }
+    },
+    "published": false,
+    "label": "Kontaktinformation"
+  }
 }

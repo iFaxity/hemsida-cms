@@ -10,15 +10,24 @@ try {
 
 export default {
   data: {},
-  get(key) {
+  get(key, asJSON = false) {
     if(isSupported) {
-      return localStorage.getItem(key);
+      let value = localStorage.getItem(key);
+      if(asJSON) {
+        value = JSON.parse(value);
+      }
+
+      return value;
     }
     return this.data.hasOwnProperty(key) ? this.data[key] : null;
   },
   set(key, value) {
     if(isSupported) {
-      return localStorage.setItem(key);
+      // Save non natives as JSON string
+      if(value instanceof Object || value instanceof Array) {
+        value = JSON.stringify(value);
+      }
+      return localStorage.setItem(key, value);
     }
 
     // Emulate null behaviour of storage api

@@ -23,9 +23,11 @@ async function request(path, body) {
     }
   });
 
-  if(!res.ok) {
-    throw 'Ett fel uppstod under autensitets förfrågan!';
+  if (!res.ok) {
+    const json = await res.json();
+    throw new Error(json.message || 'Generellt autensiterigs fel!');
   }
+
   return res.json();
 }
 
@@ -38,7 +40,7 @@ export const Auth = {
     return Storage.get(EXPIRES_KEY);
   },
   get payload() {
-    return Storage.get(PAYLOAD_KEY);
+    return Storage.get(PAYLOAD_KEY, true);
   },
   get isLoggedIn() {
     const { token, expires } = this;
@@ -47,16 +49,30 @@ export const Auth = {
   },
 
   /**
+   * 
+   * @param {*} role - Role key.access string
+   */
+  hasRole(role) {
+    const [ roleKey, roleAccess ] = role.split('.');
+    if(!this.isLoggedIn) return false;
+  
+    // Check if we have access to the 
+    return this.payload.roles.some(userRole => {
+      const [ key, access ] = userRole.split('.');
+      return roleKey == key && (access == 'all' || access == roleAccess);
+    });
+  },
+
+  /**
    * Renews the token
    */
   async renewToken() {
-    const { token, path } = this;
-    if(!token) {
+    if(!this.token) {
       throw new Error('Can\'t renew a nonexistent token!');
     }
 
     // Renew the token
-    const { token, expires } = await request(`${path}/renewToken`, { token });
+    const { token, expires } = await request(`${this.path}/renewToken`, { token });
     Storage.set(TOKEN_KEY, token);
     Storage.set(EXPIRES_KEY, expires);
   },
@@ -77,10 +93,9 @@ export const Auth = {
    */
   async login(username, password) {
     const { path } = this;
-    const body = { username, password };
 
     // Set access token
-    const { token, expires, payload } = await request(`${path}/login`, body);
+    const { token, expires, payload } = await request(`${path}/login`, { username, password });
     Storage.set(TOKEN_KEY, token);
     Storage.set(EXPIRES_KEY, expires);
     Storage.set(PAYLOAD_KEY, payload);
@@ -96,30 +111,33 @@ export const Auth = {
   }
 };
 
-function install(Vue, router, path = '/cms/auth') {
-  if (install.installed) return;
-  install.installed = true
+export default {
+  // Vue plugin
+  installed: false,
+  install(Vue, path = '/cms/auth') {
+    if (this.installed) return;
+    this.installed = true
+    Auth.path = path;
+  
+    // Define auth object to vue prototype
+    Object.defineProperty(Vue.prototype, '$auth', {
+      writable: false,
+      value: Auth,
+    });
+  },
 
-  Auth.path = path;
-
-  // Vue-router add meta authentication
-  router.beforeEach((to, from, next) => {
-    let route;
-
+  // Vue Router authentication middleware
+  middleware(to, from, next) {
     if (!Auth.isLoggedIn && to.matched.some(record => record.meta.requiresAuth)) {
-      route = { path: '/login' };
-
-      // Redirect if path isnt dashboard
-      if(to.fullPath !== '/dashboard') {
-        route.query = { redirect: to.fullPath };
-      }
+      // Redirect if path isn't dashboard
+      next({
+        path: '/login',
+        query: {
+          redirect: to.fullPath != '/dashboard' ? to.fullPath : '',
+        }
+      });
+    } else {
+      next();
     }
-
-    next(route);
-  });
-
-  // Define auth object to vue prototype
-  Object.defineProperty(Vue.prototype, '$auth', { value: Auth, writable: false });
-}
-
-export default { install };
+  }
+};

@@ -1,0 +1,13 @@
+{
+  "admin": [
+    "pages",
+    "media",
+    "settings",
+    "accounts"
+  ],
+  "user": [
+    "pages",
+    "media",
+    "settings"
+  ]
+}
