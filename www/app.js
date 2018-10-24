@@ -5,6 +5,7 @@ const helmet = require('koa-helmet');
 const logger = require('koa-logger');
 const compress = require('koa-compress');
 const static = require('koa-static');
+const mount = require('koa-mount');
 const views = require('koa-views');
 const { color, COLORS } = require('../lib/colors');
 
@@ -24,7 +25,7 @@ app.use(compress({
   flush: require('zlib').Z_SYNC_FLUSH
 }));
 app.use(views(VIEWS_DIR, { extension: 'pug' }));
-app.use(static(STATIC_DIR));
+app.use(mount('/client', static(STATIC_DIR)));
 app.use(view);
 
 // Indicate that the server started

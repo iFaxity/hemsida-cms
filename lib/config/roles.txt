@@ -1,2 +1,0 @@
-admin - Pages, Media, Personal settings, Account management
-user - Pages, Media, Personal settings
