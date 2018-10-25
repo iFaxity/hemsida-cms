@@ -1,6 +1,6 @@
 <template lang="pug">
 mdc-app
-  mdc-drawer(slot="drawer", type="permanent")
+  mdc-drawer(slot="drawer")
     mdc-list-group-subheader(text="Generellt")
     mdc-drawer-item(text="Instrumentpanel", to="/", exact)
       mdc-list-item-graphic(slot="graphic", icon="dashboard")
@@ -17,7 +17,6 @@ mdc-app
     // Logout item
     mdc-drawer-item(text="Logga ut", to="/logout")
       mdc-list-item-graphic(slot="graphic", icon="settings_power")
-
 
   main
     router-view.app

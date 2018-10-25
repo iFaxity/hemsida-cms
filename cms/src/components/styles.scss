@@ -64,3 +64,19 @@
     }
   }
 }
+
+.edit-page-fields {
+  & article {
+    display: flex;
+
+    & aside {
+      flex: 0;
+      max-width: 200px;
+      padding-right: 1em;
+    }
+
+    & .edit-fields {
+      flex: 1;
+    }
+  }
+}

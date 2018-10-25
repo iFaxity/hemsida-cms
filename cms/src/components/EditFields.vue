@@ -1,59 +1,65 @@
 <template lang="pug">
 .edit-page-fields
-  h2 Click a field to edit its properties
-  aside
-    mdc-list(two-line)
-      mdc-list-item(v-for="field of fieldTypes", :text="field.label", @click="addField(field)")
-        mdc-list-item-graphic(slot="graphic", :icon="field.icon")
+  h3 Tryck på ett fält från menyn för att lägga till
+  mdc-button(@click="save") Spara ändringar
   article
-    .edit-field
-
-
-  mdc-dialog(id="edit-field", ref="editDialog")
-    mdc-textfield(v-model="activeField.label", label="Fältnamn")
-    mdc-textfield(v-model="activeField.type", label="Fälttyp")
+    aside
+      mdc-list(two-line, dense)
+        mdc-list-item(v-for="field of fieldTypes", :text="field.label", @click="addField(field)")
+          mdc-list-item-graphic(slot="graphic", :icon="field.icon")
+    
+    .edit-fields
+      h4 Fält
+      p Tips: Tänk på att alla fältnamn måste vara unika
+      .edit-field(v-for="(field, index) of fields")
+        mdc-textfield(v-model="field.name", label="Fältnamn")
+        mdc-textfield(v-model="field.label", label="Fältetikett")
+        mdc-select(v-model="field.type", label="Fälttyp")
+          mdc-select-item(v-for="ft of fieldTypes", :label="ft.label", :value="ft.type")
+        mdc-button(@click="removeField(index)" icon="close")
 </template>
 
 <script>
+
 const FIELDS = [
   {
     label: 'Kort Text',
-    name: 'paragraph',
+    type: 'paragraph',
     icon: 'short_text',
   },
   {
     label: 'Lång Text',
-    name: 'text',
+    type: 'text',
     icon: 'notes',
   },
   {
     label: 'WYSIWYG',
-    name: 'wysiwyg',
+    type: 'wysiwyg',
     icon: 'art_track',
   },
   {
     label: 'HTML',
-    name: 'html',
+    type: 'html',
     icon: 'code',
   },
   {
     label: 'Media (bild/video)',
-    name: 'media',
+    type: 'media',
     icon: 'image',
   },
   {
     label: 'Nummer',
-    name: 'number',
+    type: 'number',
     icon: 'money',
   },
   {
     label: 'Boolesk',
-    name: 'boolean',
+    type: 'boolean',
     icon: 'check_box',
   },
   {
     label: 'Kollektion',
-    name: 'collection',
+    type: 'collection',
     icon: 'list',
   },
 ];
@@ -61,11 +67,9 @@ const FIELDS = [
 export default {
   name: 'CmsEditFields',
   components: {},
-
   data() {
     return {
       fields: [],
-      activeField: {}
     };
   },
   computed: {
@@ -78,22 +82,42 @@ export default {
     try {
       const { page } = this.$route.params;
       const { fields } = await this.$api(`/page/${page}`);
-      this.fields = fields;
+      this.fields = Object.keys(fields).map(name => {
+        const field = fields[name];
+        field.name = name;
+        return field;
+      });
     } catch(ex) {
       this.$snackbar.show(ex.message);
     }
   },
 
   methods: {
-    editField(field) {
-
-    },
     addField(field) {
       if(field) {
-        this.activeField = {};
-        this.$refs.dialog.show();
+        this.fields.push({
+          label: 'Nytt fält',
+          name: '',
+          type: field.type,
+        });
       } else {
-        this.$snackbar.show('Finns inget sådant fält!');
+        this.$snackbar.show('Vilket fält?');
+      }
+    },
+    removeField(index) {
+      this.fields.splice(index, 1);
+    },
+
+    save() {
+      const { fields } = this;
+      const unique = !fields.some((field, index) => {
+        return index == fields.findIndex(x => x.name == field.name);
+      });
+
+      if(unique) {
+        this.$snackbar.show('Alla fältnamn måste vara unika.');
+      } else {
+        this.$snackbar.show('Dina ändringar sparades.');
       }
     },
   },
