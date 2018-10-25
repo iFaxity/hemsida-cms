@@ -27,7 +27,7 @@
     "koa-views": "^6.1.4",
     "mongoose": "^5.3.6",
     "mz": "^2.7.0",
-    "vue": "^2.5.17",
+    "vue": "2.x",
     "vue-hot-reload-api": "^2.3.1",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"
@@ -37,6 +37,7 @@
     "autoprefixer": "^9.3.0",
     "node-sass": "^4.9.4",
     "parcel-bundler": "^1.10.3",
+    "parcel-plugin-compress": "^1.0.6",
     "postcss-url": "^8.0.0",
     "pug": "^2.0.3",
     "vue-template-compiler": "^2.5.17"

@@ -66,7 +66,7 @@ Router.post('/renewToken', Auth.middleware(), async ctx => {
   ctx.body = JSON.stringify(body);
 });
 // TODO: implement this (only allow admin roles)
-Router.put('/createUser', Auth.middleware('account.create'), async ctx => {
+Router.put('/createUser', Auth.middleware('accounts.create'), async ctx => {
   let body;
   const { username, password, roles, name } = ctx.request.body;
 

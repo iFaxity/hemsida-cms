@@ -6,7 +6,7 @@
 		"payload": {
 			"name": "Administratör",
 			"roles": [
-				"page.all",
+				"pages.all",
 				"media.all",
 				"settings.all",
 				"accounts.all"

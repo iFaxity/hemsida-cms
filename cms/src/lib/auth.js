@@ -59,7 +59,7 @@ export const Auth = {
     // Check if we have access to the 
     return this.payload.roles.some(userRole => {
       const [ key, access ] = userRole.split('.');
-      return roleKey == key && (access == 'all' || access == roleAccess);
+      return roleKey == key && (!access || access == 'all' || access == roleAccess);
     });
   },
 
@@ -128,7 +128,16 @@ export default {
 
   // Vue Router authentication middleware
   middleware(to, from, next) {
-    if (!Auth.isLoggedIn && to.matched.some(record => record.meta.requiresAuth)) {
+    const match = to.matched.find(record => record.meta.auth);
+    if(!match) {
+      next();
+    }
+
+    const role = match.meta.auth;
+    console.log(`ROLE: ${role}`);
+    if(typeof role == 'string' && !Auth.hasRole(role)) {
+      next({ path: '/404' });
+    } else if(role == true && !Auth.isLoggedIn) {
       next({
         path: '/login',
         query: {

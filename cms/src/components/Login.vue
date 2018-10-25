@@ -3,8 +3,8 @@
   h1 CMS Login
   .login__content
     form.login__form
-      mdc-textfield(v-model="username", label="Username")
-      mdc-textfield(v-model="password", label="Password", type="password")
+      mdc-textfield(v-model="username", label="Användarnamn")
+      mdc-textfield(v-model="password", label="Lösenord", type="password")
       mdc-button(raised, @click="login") Logga in
 </template>
 

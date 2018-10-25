@@ -1,12 +1,15 @@
 <template lang="pug">
 mdc-app
   mdc-drawer(slot="drawer", type="permanent")
-    mdc-drawer-item(text="Hem", to="/")
+    mdc-list-group-subheader(text="Generellt")
+    mdc-drawer-item(text="Instrumentpanel", to="/", exact)
       mdc-list-item-graphic(slot="graphic", icon="dashboard")
     mdc-drawer-item(text="Sidor", to="/pages")
       mdc-list-item-graphic(slot="graphic", icon="insert_drive_file")
     mdc-drawer-item(text="Media", to="/media")
       mdc-list-item-graphic(slot="graphic", icon="perm_media")
+
+    mdc-list-group-subheader(text="Konto")
     mdc-drawer-item(text="Inställningar", to="/settings")
       mdc-list-item-graphic(slot="graphic", icon="settings")
     mdc-drawer-item(v-if="accountsAccess", text="Konton", to="/accounts")

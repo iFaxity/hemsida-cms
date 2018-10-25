@@ -13,7 +13,8 @@
       }
     },
     "published": true,
-    "label": "Hemsida"
+    "title": "Hemsida",
+    "description": ""
   },
   "about": {
     "fields": {
@@ -34,7 +35,8 @@
       }
     },
     "published": true,
-    "label": "Kort info om oss"
+    "title": "Kort info om oss",
+    "description": ""
   },
   "contact": {
     "fields": {
@@ -50,6 +52,7 @@
       }
     },
     "published": false,
-    "label": "Kontaktinformation"
+    "title": "Kontaktinformation",
+    "description": ""
   }
 }

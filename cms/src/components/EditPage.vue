@@ -2,54 +2,57 @@
 .edit-page
   h2 Editing page: {{ slug }}
 
-  mdc-textfield(v-model="label", label="Sidonamn")
   .controls
+    mdc-button(raised, icon="edit", @click="$router.push({ path: 'fields', append: true })")
+    mdc-button(raised, icon="save", @click="save")
     mdc-form-field(label="Publicerad")
       mdc-checkbox(v-model="published")
-    mdc-button(@click="save") Spara ändringar
+
+  .seo-fields
+    mdc-textfield(v-model="title", label="SEO Titel (max 55-60 bokstäver)")
+    mdc-textfield(multiline, cols="100", rows="3", v-model="description", label="SEO Beskrivning (max 150-250 bokstäver)")
 
   .fields
     .field(v-for="(field, name) of fields")
-      span.slug Fältnamn: {{ name }}
       component(:is="field.is", :label="field.label", v-model="field.value")
 </template>
 
 <script>
 import EditTextfield from './edit/Textfield.vue';
 import EditTextarea from './edit/Textarea.vue';
-import EditFroala from './edit/Froala.vue';
+import EditWYSIWYG from './edit/WYSIWYG.vue';
 import EditMedia from './edit/Media.vue';
 import EditNumber from './edit/Number.vue';
 import EditBoolean from './edit/Boolean.vue';
 import EditCollection from './edit/Collection.vue';
-
 const FIELDS = {
   paragraph: 'textfield',
   text: 'textarea',
-  wysiwyg: 'froala',
+  wysiwyg: 'wysiwyg',
   html: 'textarea',
   media: 'media',
   number: 'number',
   boolean: 'boolean',
-  collection: 'collection'
+  collection: 'collection',
 };
 
+// TODO: move logic to Field component
 export default {
   name: 'CmsEditPage',
   components: {
     EditTextfield,
     EditTextarea,
-    EditFroala,
+    EditWYSIWYG,
     EditMedia,
     EditNumber,
     EditBoolean,
     EditCollection,
   },
-  props: {},
 
   data() {
     return {
-      label: '',
+      title: '',
+      description: '',
       published: false,
       fields: {},
     };
@@ -72,9 +75,10 @@ export default {
         field.is = `edit-${FIELDS[field.type]}`;
       });
 
-      this.fields = page.fields;
+      this.title = page.title;
+      this.description = page.description;
       this.published = page.published;
-      this.label = page.label;
+      this.fields = page.fields;
     } catch(ex) {
       this.$snackbar.show(ex.message);
     }
@@ -86,7 +90,7 @@ export default {
       // Call api function to save changes
       try {
         const fields = Object.keys(this.fields).reduce((fields, key) => {
-          const { is, ...newField} = this.fields[key];
+          const { is, ...newField } = this.fields[key];
           fields[key] = newField;
           return fields;
         }, {});

@@ -1,60 +1,59 @@
 <template lang="pug">
 .edit-page-fields
   h2 Click a field to edit its properties
-    mdc-list
-      mdc-list-item(v-for="field of fields", :text="field.label", @click="addField(field)")
-        mdc-list-item-graphic(slot="graphic", :icon="field.icon")
-        .slug {{ field.slug }}
-
-  article
+  aside
     mdc-list(two-line)
-      mdc-list-item(v-for="field of fields", :text="field.name", :secondary="field.id")
+      mdc-list-item(v-for="field of fieldTypes", :text="field.label", @click="addField(field)")
         mdc-list-item-graphic(slot="graphic", :icon="field.icon")
-        .slug {{ field.slug }}
+  article
+    .edit-field
 
-  //mdc-dialog(ref="dialog")
+
+  mdc-dialog(id="edit-field", ref="editDialog")
+    mdc-textfield(v-model="activeField.label", label="Fältnamn")
+    mdc-textfield(v-model="activeField.type", label="Fälttyp")
 </template>
 
 <script>
 const FIELDS = [
   {
     label: 'Kort Text',
-    component: 'Textfield',
+    name: 'paragraph',
     icon: 'short_text',
   },
   {
     label: 'Lång Text',
-    component: 'Textarea',
+    name: 'text',
     icon: 'notes',
   },
   {
     label: 'WYSIWYG',
-    component: 'Froala',
+    name: 'wysiwyg',
     icon: 'art_track',
   },
   {
     label: 'HTML',
-    component: 'Textarea',
+    name: 'html',
     icon: 'code',
   },
   {
     label: 'Media (bild/video)',
-    component: 'Media',
+    name: 'media',
     icon: 'image',
   },
   {
     label: 'Nummer',
-    component: 'Number',
+    name: 'number',
     icon: 'money',
   },
   {
     label: 'Boolesk',
-    component: 'Boolean',
+    name: 'boolean',
     icon: 'check_box',
   },
   {
     label: 'Kollektion',
-    component: 'Collection',
+    name: 'collection',
     icon: 'list',
   },
 ];
@@ -75,20 +74,20 @@ export default {
     }
   },
 
-  async beforeRouteEnter() {
+  async created() {
     try {
+      const { page } = this.$route.params;
       const { fields } = await this.$api(`/page/${page}`);
       this.fields = fields;
     } catch(ex) {
       this.$snackbar.show(ex.message);
     }
   },
-  beforeRouteLeave() {
-    const answer = confirm('Är du säker på att du vill lämna sidan?');
-    answer ? next() : next(false);
-  },
 
   methods: {
+    editField(field) {
+
+    },
     addField(field) {
       if(field) {
         this.activeField = {};

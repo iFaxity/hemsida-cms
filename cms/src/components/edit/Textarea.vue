@@ -1,5 +1,5 @@
 <template lang="pug">
-mdc-textfield(multiline, cols="100", rows="100", :label="label", v-model="model")
+mdc-textfield(multiline, cols="100", rows="5", :label="label", v-model="model")
 </template>
 
 <script>

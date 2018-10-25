@@ -6,19 +6,19 @@ Router.prefix('/api');
 /*
   API endpoints (maybe split them up to another file)
 */
-Router.get('/page', Auth.middleware('page.read'), async ctx => {
+Router.get('/page', Auth.middleware('pages.read'), async ctx => {
   const pages = Page.get();
   ctx.status = 200;
   ctx.body = JSON.stringify(pages);
 });
-Router.get('/page/:page', Auth.middleware('page.read'), async ctx => {
+Router.get('/page/:page', Auth.middleware('pages.read'), async ctx => {
   const { page } = ctx.params;
 
   const data = Page.get(page);
   ctx.status = 200;
   ctx.body = JSON.stringify(data);
 });
-Router.put('/page/:page', Auth.middleware('page.create'), async ctx => {
+Router.put('/page/:page', Auth.middleware('pages.create'), async ctx => {
   const { data } = ctx.request.body;
   const { page } = ctx.params;
   let body;
@@ -44,7 +44,7 @@ Router.put('/page/:page', Auth.middleware('page.create'), async ctx => {
   }
   ctx.body = JSON.stringify(body);
 });
-Router.post('/page/:page', Auth.middleware('page.update'), async ctx => {
+Router.post('/page/:page', Auth.middleware('pages.update'), async ctx => {
   const { page } = ctx.params;
   const { data } = ctx.request.body;
   let body;
@@ -65,7 +65,7 @@ Router.post('/page/:page', Auth.middleware('page.update'), async ctx => {
 
   ctx.body = JSON.stringify(body);
 });
-Router.delete('/page/:page', Auth.middleware('page.remove'), async ctx => {
+Router.delete('/page/:page', Auth.middleware('pages.remove'), async ctx => {
   const { page } = ctx.params;
   let body;
 
