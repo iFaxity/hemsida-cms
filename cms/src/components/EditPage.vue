@@ -38,7 +38,7 @@ const FIELDS = {
 
 // TODO: move logic to Field component
 export default {
-  name: 'CmsEditPage',
+  name: 'CmsPage',
   components: {
     EditTextfield,
     EditTextarea,

@@ -35,11 +35,11 @@
   "devDependencies": {
     "@vue/component-compiler-utils": "^2.3.0",
     "autoprefixer": "^9.3.0",
-    "node-sass": "^4.9.4",
     "parcel-bundler": "^1.10.3",
     "parcel-plugin-compress": "^1.0.6",
     "postcss-url": "^8.0.0",
     "pug": "^2.0.3",
+    "sass": "^1.14.3",
     "vue-template-compiler": "^2.5.17"
   }
 }

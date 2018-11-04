@@ -1,26 +1,31 @@
 <template lang="pug">
-.edit-page-fields
-  h3 Tryck på ett fält från menyn för att lägga till
-  mdc-button(@click="save") Spara ändringar
-  article
-    aside
-      mdc-list(two-line, dense)
-        mdc-list-item(v-for="field of fieldTypes", :text="field.label", @click="addField(field)")
-          mdc-list-item-graphic(slot="graphic", :icon="field.icon")
-    
-    .edit-fields
-      h4 Fält
-      p Tips: Tänk på att alla fältnamn måste vara unika
-      .edit-field(v-for="(field, index) of fields")
-        mdc-textfield(v-model="field.name", label="Fältnamn")
-        mdc-textfield(v-model="field.label", label="Fältetikett")
-        mdc-select(v-model="field.type", label="Fälttyp")
+.edit-fields
+  h2 Redigera fält
+  mdc-button(icon="save", raised, :disabled="fieldsInvalid", @click="save") {{ fieldsInvalid ? 'Fälten är inte rätt inställda' : 'Spara' }}
+  p
+    i.material-icons info
+    | Tänk på att alla fältnamn måste vara unika
+
+  edit-fields(v-model="fields")
+  //article.fields
+    .field(v-for="(f, index) of fields")
+      .meta
+        i.material-icons {{ getIcon(f) }}
+        mdc-textfield(required, v-model="f.name", label="Fältnamn", @input="validateFields")
+        mdc-textfield(required, v-model="f.label", label="Fältetikett")
+        mdc-select(required, v-model="f.type", label="Fälttyp")
+          mdc-select-item(disabled, label="Välj fälttyp", value="none")
           mdc-select-item(v-for="ft of fieldTypes", :label="ft.label", :value="ft.type")
         mdc-button(@click="removeField(index)" icon="close")
+      
+      .fields(v-if="f.type == 'collection'")
+        mdc-button(icon="add", @click="createField(index)") Lägg till underfält
+
+
+    mdc-button(icon="add", @click="createField()") Lägg till fält
 </template>
 
 <script>
-
 const FIELDS = [
   {
     label: 'Kort Text',
@@ -64,50 +69,33 @@ const FIELDS = [
   },
 ];
 
+import EditFields from './field/Fields.vue';
+import Fields from '../lib/fields';
+
 export default {
-  name: 'CmsEditFields',
-  components: {},
-  data() {
-    return {
-      fields: [],
-    };
-  },
-  computed: {
-    fieldTypes() {
-      return FIELDS;
-    }
-  },
+  name: 'CmsPageFields',
+  components: { EditFields },
+  data: () =>  ({
+    fields: [],
+    fieldsInvalid: false,
+  }),
+  // computed: {
+  //   fieldTypes() {
+  //     return FIELDS;
+  //   }
+  // },
 
   async created() {
     try {
       const { page } = this.$route.params;
       const { fields } = await this.$api(`/page/${page}`);
-      this.fields = Object.keys(fields).map(name => {
-        const field = fields[name];
-        field.name = name;
-        return field;
-      });
+      this.fields = fields;
     } catch(ex) {
       this.$snackbar.show(ex.message);
     }
   },
 
   methods: {
-    addField(field) {
-      if(field) {
-        this.fields.push({
-          label: 'Nytt fält',
-          name: '',
-          type: field.type,
-        });
-      } else {
-        this.$snackbar.show('Vilket fält?');
-      }
-    },
-    removeField(index) {
-      this.fields.splice(index, 1);
-    },
-
     save() {
       const { fields } = this;
       const unique = !fields.some((field, index) => {
@@ -121,5 +109,50 @@ export default {
       }
     },
   },
+
+    // createField(index) {
+    //   let fields = this.fields;
+    //   if(index > 0) {
+    //     const field = this.fields[index];
+    //     field.fields = [];
+    //     fields = field.fields;
+    //   }
+
+    //   fields.push({
+    //     label: 'Nytt fält',
+    //     name: 'nytt_fält',
+    //     type: 'none',
+    //   });
+    // },
+    // getIcon(field) {
+    //   const f = FIELDS.find(x => x.type == field.type);
+    //   return f && f.icon;
+    // },
+    // validateFields() {
+    //   const { fields } = this;
+    //   console.log('Lel?');
+    //   this.fieldsInvalid = !fields.every((field, index) => {
+    //     const i = this.fields.findIndex(f => f.name == field.name);
+    //     return index == i && field.name && field.label;
+    //   });
+    // },
+
+    // addField(field) {
+    //   if(field) {
+    //     this.fields.push({
+    //       label: 'Nytt fält',
+    //       name: '',
+    //       type: field.type,
+    //     });
+    //   } else {
+    //     this.$snackbar.show('Vilket fält?');
+    //   }
+    // },
+    // removeField(index) {
+    //   const field = this.fields[index];
+    //   if(confirm(`Vill du verkligen ta bort fältet '${field.name}'?`)) {
+    //     this.fields.splice(index, 1);
+    //   }
+    // },
 };
 </script>

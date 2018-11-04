@@ -3,6 +3,20 @@ const Auth = require('../../../lib/auth');
 const Page = require('../../../lib/page');
 Router.prefix('/api');
 
+// Maps fields recursively with custom map function
+function mapFields(arr, fn) {
+  return arr.map(item => {
+    if (item.fields && Array.isArray(item.fields)) {
+      // Use assign to not overwrite original stuff
+      item = Object.assign({}, item, {
+        fields: item.fields.map(fn)
+      });
+    }
+    return fn(item);
+  });
+}
+
+// TODO: change Page.js to set fields to Array. And then when getting page then change fields to be an Object again
 /*
   API endpoints (maybe split them up to another file)
 */
@@ -26,7 +40,7 @@ Router.put('/page/:page', Auth.middleware('pages.create'), async ctx => {
   // Set default data
   Object.assign(data, {
     published: false,
-    fields: {},
+    fields: [],
   });
 
   try {
@@ -77,6 +91,46 @@ Router.delete('/page/:page', Auth.middleware('pages.remove'), async ctx => {
     body = { message: ex.message };
     ctx.status = 400;
   }
+  ctx.body = JSON.stringify(body);
+});
+
+// Add field scope
+Router.get('/field/:page', Auth.middleware('pages.read'), async ctx => {
+  const { page } = ctx.params;
+  let body;
+
+  if (Page.has(page)) {
+    const data = Page.get(page);
+    data.fields.map
+
+    body = data.fields.map(field => {
+      const { value: _, ...item } = field;
+      return item;
+    });
+    ctx.status = 200;
+  } else {
+    ctx.status = 400;
+    body = { message: 'Page not found' };
+  }
+
+  ctx.body = JSON.stringify(body);
+});
+Router.post('/field/:page', Auth.middleware('pages.update'), async ctx => {
+  const { page } = ctx.params;
+  let body;
+
+  if (Page.has(page)) {
+    const data = Page.get(page);
+    body = mapFields(data.fields, item => {
+      const { value: _, ...field } = item;
+      return field;
+    });
+    ctx.status = 200;
+  } else {
+    ctx.status = 400;
+    body = { message: 'Page not found' };
+  }
+
   ctx.body = JSON.stringify(body);
 });
 

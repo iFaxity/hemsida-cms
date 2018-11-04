@@ -2,7 +2,7 @@
 .cms-pages
   h1 Sidor
   mdc-list(two-line)
-    mdc-list-item(v-for="page of pages", @click="editPage(page.slug)", :text="page.title", :secondary="page.published ? 'Published' : 'Not Published'")
+    mdc-list-item(v-for="page of pages", @click="editPage(page.slug)", :text="page.title", :secondary="page.published ? 'Publicerad' : 'Inte publicerad'")
   mdc-button(@click="createDialog") Ny sida
 
   mdc-dialog#create-page(ref="dialog", header="Skapa en ny sida", :valid="dialogValid", @accept="createPage")
@@ -61,7 +61,6 @@ export default {
             data: { label: dialog.label },
           },
         });
-
 
         dialog.slug = '';
         dialog.label = '';

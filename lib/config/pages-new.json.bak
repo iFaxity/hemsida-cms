@@ -1,8 +1,6 @@
 {
   "index": {
-    "published": true,
-    "title": "Hemsida",
-    "description": "",
+
     "fields": [
       {
         "name": "title",
@@ -16,12 +14,12 @@
         "label": "Sidinnehåll",
         "value": "Detta är min nya hemsida. Här kommer jag lägga upp intressanta artiklar."
       }
-    ]
+    ],
+    "published": true,
+    "title": "Hemsida",
+    "description": ""
   },
   "about": {
-    "published": true,
-    "title": "Kort info om oss",
-    "description": "",
     "fields": [
       {
         "name": "title",
@@ -41,12 +39,12 @@
         "label": "Sidinnehåll",
         "value": "Jag gillar att kolla på film och äta chips."
       }
-    ]
+    ],
+    "published": true,
+    "title": "Kort info om oss",
+    "description": ""
   },
   "contact": {
-    "published": false,
-    "title": "Kontaktinformation",
-    "description": "",
     "fields": [
       {
         "name": "title",
@@ -60,6 +58,9 @@
         "label": "Sidinnehåll",
         "value": "Du kan kontakta mig på fisk@grymsida.com eller på facebook."
       }
-    ]
+    ],
+    "published": false,
+    "title": "Kontaktinformation",
+    "description": ""
   }
 }
