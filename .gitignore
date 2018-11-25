@@ -1,5 +1,11 @@
-# Custom folders
+# Custom ignores
 cms/dist/
+reference/
+
+yarn.lock
+.cache/
+todo.txt
+
 
 # Logs
 logs
@@ -113,7 +119,3 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-
-reference/
-todo.txt
-yarn.lock
