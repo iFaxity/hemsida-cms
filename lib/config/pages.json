@@ -2,19 +2,19 @@
   "index": {
     "published": true,
     "title": "Hemsida",
-    "description": "",
+    "description": "Detta är våran hem sida/index sida för vår webbplats",
     "fields": [
       {
-        "name": "title",
-        "type": "paragraph",
-        "label": "SEO Titel",
-        "value": "Min hemsida"
+        "name": "sidinnehåll",
+        "label": "Sidinnehåll",
+        "type": "wysiwyg",
+        "value": "<h1>Detta är min fina hemsida</h1><p><br></p>"
       },
       {
-        "name": "body",
-        "type": "text",
-        "label": "Sidinnehåll",
-        "value": "Detta är min nya hemsida. Här kommer jag lägga upp intressanta artiklar."
+        "name": "dagens_nummer",
+        "label": "Dagens nummer",
+        "type": "number",
+        "value": 200
       }
     ]
   },
@@ -24,21 +24,21 @@
     "description": "",
     "fields": [
       {
-        "name": "title",
+        "name": "seo_titel",
         "type": "paragraph",
         "label": "SEO Titel",
-        "value": "Min hemsida"
+        "value": "Om oss"
       },
       {
-        "name": "likes_cookies",
+        "name": "har_kakor",
         "type": "boolean",
-        "label": "Tycker om kakor",
+        "label": "Har kakor",
         "value": true
       },
       {
-        "name": "body",
+        "name": "innehåll",
         "type": "text",
-        "label": "Sidinnehåll",
+        "label": "Innehåll",
         "value": "Jag gillar att kolla på film och äta chips."
       }
     ]
@@ -49,15 +49,15 @@
     "description": "",
     "fields": [
       {
-        "name": "title",
+        "name": "seo_titel",
         "type": "paragraph",
         "label": "SEO Titel",
         "value": "Om oss"
       },
       {
-        "name": "body",
+        "name": "innehåll",
         "type": "text",
-        "label": "Sidinnehåll",
+        "label": "Innehåll",
         "value": "Du kan kontakta mig på fisk@grymsida.com eller på facebook."
       }
     ]

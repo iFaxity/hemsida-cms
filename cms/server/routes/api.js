@@ -1,137 +1,161 @@
+const path = require('path');
+const fs = require('mz/fs');
+const send = require('koa-send');
+const body = require('koa-body');
 const Router = require('koa-router')();
-const Auth = require('../../../lib/auth');
+
+const Auth = require('../auth');
 const Page = require('../../../lib/page');
+
 Router.prefix('/api');
 
-// Maps fields recursively with custom map function
-function mapFields(arr, fn) {
-  return arr.map(item => {
-    if (item.fields && Array.isArray(item.fields)) {
-      // Use assign to not overwrite original stuff
-      item = Object.assign({}, item, {
-        fields: item.fields.map(fn)
-      });
-    }
-    return fn(item);
-  });
-}
+// Request body parsing & file uploads
+Router.use(body({ multipart: true }));
 
 // TODO: change Page.js to set fields to Array. And then when getting page then change fields to be an Object again
 /*
   API endpoints (maybe split them up to another file)
 */
 Router.get('/page', Auth.middleware('pages.read'), async ctx => {
-  const pages = Page.get();
   ctx.status = 200;
-  ctx.body = JSON.stringify(pages);
+  ctx.body = { data: Page.get() };
 });
 Router.get('/page/:page', Auth.middleware('pages.read'), async ctx => {
   const { page } = ctx.params;
 
-  const data = Page.get(page);
+  const { value: _, ...data } = Page.get(page);
   ctx.status = 200;
-  ctx.body = JSON.stringify(data);
+  ctx.body = { data };
 });
 Router.put('/page/:page', Auth.middleware('pages.create'), async ctx => {
   const { data } = ctx.request.body;
   const { page } = ctx.params;
-  let body;
 
   // Set default data
   Object.assign(data, {
+    title: '',
+    description: '',
     published: false,
     fields: [],
   });
 
   try {
-    if(Page.has(page)) {
-      ctx.body = { message: 'Sidan finns redan' };
-      ctx.status = 401;
-    } else {
+    if(!Page.has(page)) {
       Page.set(page, data);
-      ctx.body = { ok: true };
       ctx.status = 200;
+      ctx.body = {};
+    } else {
+      ctx.status = 401;
+      ctx.body = { message: 'Sidan finns redan' };
     }
   } catch(ex) {
-    body = { message: ex.message };
     ctx.status = 400;
+    ctx.body = { message: ex.message };
   }
-  ctx.body = JSON.stringify(body);
 });
 Router.post('/page/:page', Auth.middleware('pages.update'), async ctx => {
   const { page } = ctx.params;
   const { data } = ctx.request.body;
-  let body;
 
   if(Page.has(page)) {
     try {
       Page.set(page, data);
-      body = { ok: true };
       ctx.status = 200;
+      ctx.body = {};
     } catch(ex) {
-      body = { message: ex.message };
       ctx.status = 500;
+      ctx.body = { message: ex.message };
     }
   } else {
-    body = { message: 'Sidan finns inte' };
+    ctx.body = { message: 'Sidan finns inte' };
     ctx.status = 401;
   }
-
-  ctx.body = JSON.stringify(body);
 });
 Router.delete('/page/:page', Auth.middleware('pages.remove'), async ctx => {
   const { page } = ctx.params;
-  let body;
 
   try {
-    await Page.remove(`/${page}`);
-    ctx.body = { ok: true };
+    await Page.remove(page);
     ctx.status = 200;
+    ctx.body = {};
   } catch(ex) {
-    body = { message: ex.message };
     ctx.status = 400;
+    ctx.body = { message: ex.message };
   }
-  ctx.body = JSON.stringify(body);
 });
 
 // Add field scope
 Router.get('/field/:page', Auth.middleware('pages.read'), async ctx => {
   const { page } = ctx.params;
-  let body;
 
   if (Page.has(page)) {
-    const data = Page.get(page);
-    data.fields.map
+    const pageData = Page.get(page);
 
-    body = data.fields.map(field => {
+    const data = pageData.fields.map(field => {
       const { value: _, ...item } = field;
       return item;
     });
+
     ctx.status = 200;
+    ctx.body = { data };
   } else {
     ctx.status = 400;
-    body = { message: 'Page not found' };
+    ctx.body = { message: 'Page not found' };
   }
-
-  ctx.body = JSON.stringify(body);
 });
 Router.post('/field/:page', Auth.middleware('pages.update'), async ctx => {
   const { page } = ctx.params;
-  let body;
+  const { data } = ctx.request.body;
 
   if (Page.has(page)) {
-    const data = Page.get(page);
-    body = mapFields(data.fields, item => {
-      const { value: _, ...field } = item;
-      return field;
-    });
-    ctx.status = 200;
+    try {
+      Page.set(page, data);
+      ctx.status = 200;
+      ctx.body = {};
+    } catch (ex) {
+      ctx.status = 500;
+      ctx.body = { message: ex.message };
+    }
   } else {
     ctx.status = 400;
-    body = { message: 'Page not found' };
+    ctx.body = { message: 'Page not found' };
   }
-
-  ctx.body = JSON.stringify(body);
 });
+
+// File upload
+/*const MEDIA_PATH = path.join(__dirname, '../../../www', process.env.MEDIA_DIR);
+
+Router.put('/files/add', Auth.middleware('pages.update'), async ctx => {
+  const { image } = ctx.request.files;
+
+  // image.path = local temp path of file
+  // image.name = name of file
+  // image.type = mime type
+
+  // move the file to the img folder of www
+  const filename = Date.now() + path.extname(image.name);
+
+  // Move file from temp to media folder
+  await fs.rename(image.path, path.join(MEDIA_PATH, filename));
+
+  const data = {
+    path: filename,
+  };
+  ctx.status = 200;
+  ctx.body = { data };
+});
+Router.get('/files/:file', async ctx => {
+  try {
+    await send(ctx, ctx.params.file, {
+      root: MEDIA_PATH
+    });
+  } catch(ex) {
+    console.error(ex);
+    ctx.throw(500, ex);
+  }
+});*/
+
+// 404 Route (just drop the request)
+Router.all('*', async ctx => ctx.res.end());
 
 module.exports = Router;

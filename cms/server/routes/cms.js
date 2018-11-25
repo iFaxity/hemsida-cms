@@ -1,14 +1,10 @@
-const path = require('path');
-const { createReadStream } = require('fs');
-const Router = require('koa-router')();
+const send = require('koa-send');
 
 // Show index page
-Router.get('*', async (ctx, next) => {
+module.exports = async function(ctx, next) {
   if(!ctx.url.startsWith('/dist')) {
-    ctx.type = 'html';
-    ctx.body = createReadStream(path.join(__dirname, '../index.html'));
+    await send(ctx, 'cms/server/index.html');
+  } else {
+    await next();
   }
-  next();
-});
-
-module.exports = Router;
+};

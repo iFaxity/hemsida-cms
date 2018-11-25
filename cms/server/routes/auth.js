@@ -1,89 +1,56 @@
 
 const Router = require('koa-router')();
-const Auth = require('../../../lib/auth');
+const Auth = require('../auth');
 Router.prefix('/auth');
+
+// Request body parsing
+const body = require('koa-body');
+Router.use(body());
 
 /*
   Authentication routes
 */
 Router.post('/login', async ctx => {
   const { username, password } = ctx.request.body;
-  let body;
 
-  // Temporary user login system...exchange for passport in the future
   try {
-    body = await Auth.login(username, password);
+    const token = await Auth.login(username, password);
+    ctx.body = { token };
     ctx.status = 200;
   } catch (ex) {
-    body = { message: 'Ogiltiga inloggnings uppgifter' };
+    ctx.body = { message: 'Ogiltiga inloggnings uppgifter' };
     ctx.status = 401;
   }
-
-  ctx.body = JSON.stringify(body);
-});
-Router.post('/logout', Auth.middleware(), async ctx => {
-  const { token } = ctx.request.body;
-  let body;
-
-  try {
-    await Auth.logout(token);
-    body = { ok: true };
-    ctx.status = 200;
-  } catch (ex) {
-    body = { message: ex.message };
-    ctx.status = 400;
-  }
-
-  ctx.body = JSON.stringify(body);
 });
 Router.post('/changePassword', Auth.middleware(), async ctx => {
-  const { token, newPassword } = ctx.request.body;
-  let body;
-
+  const { payload } = ctx.jwt;
   try {
-    await Auth.changePassword(token, newPassword);
-    body = { ok: true };
+    await Auth.changePassword(payload.user, newPassword);
+    ctx.body = {
+      token: ctx.jwt.create(),
+    };
     ctx.status = 200;
   } catch (ex) {
-    body = { message: ex.message };
+    ctx.body = { message: ex.message };
     ctx.status = 400;
   }
-
-  ctx.body = JSON.stringify(body);
 });
-Router.post('/renewToken', Auth.middleware(), async ctx => {
-  const { token } = ctx.request.body;
-  let body;
 
-  try {
-    body = await Auth.renewToken(token);
-    ctx.status = 200;
-  } catch (ex) {
-    body = { message: ex.message };
-    ctx.status = 400;
-  }
-
-  ctx.body = JSON.stringify(body);
-});
 // TODO: implement this (only allow admin roles)
-Router.put('/createUser', Auth.middleware('accounts.create'), async ctx => {
-  let body;
-  const { username, password, roles, name } = ctx.request.body;
+Router.put('/create-user', Auth.middleware('accounts.create'), async ctx => {
+  const { username, password, ...payload } = ctx.request.body;
 
   try {
-    await Auth.createUser(username, password, {
-      // Additional user info here (payload)
-      name, roles
-    });
+    await Auth.createUser(username, password, payload);
+    ctx.body = { ok: true };
     ctx.status = 200;
   } catch (ex) {
-    body = { message: ex.message };
+    ctx.body = { message: ex.message };
     ctx.status = 500;
   }
-
-  if(body) {
-    ctx.body = JSON.stringify(body);
-  }
 });
+
+// 404 Route (just drop the request)
+Router.all('*', async ctx => ctx.res.end());
 
 module.exports = Router;

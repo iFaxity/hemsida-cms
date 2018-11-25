@@ -1,16 +1,17 @@
 {
-	"admin": {
-		"password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-		"token": "IFBldgAdiKH1E86jL9CErngqlUpkEZvH2zBnfAl9TqE=",
-		"expires": 1541698553982,
-		"payload": {
-			"name": "Administratör",
-			"roles": [
-				"pages.all",
-				"media.all",
-				"settings.all",
-				"accounts.all"
-			]
-		}
-	}
+  "admin": {
+    "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+    "token": null,
+    "expires": null,
+    "roles": [
+      "pages.all",
+      "media.all",
+      "settings.all",
+      "accounts.all"
+    ],
+    "payload": {
+      "user": "admin",
+      "name": "Administratör"
+    }
+  }
 }
