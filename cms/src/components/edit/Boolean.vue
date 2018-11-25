@@ -1,6 +1,6 @@
 <template lang="pug">
 mdc-form-field(:label="label")
-  mdc-checkbox(v-model="model")
+  mdc-switch(v-model="model")
 </template>
 
 <script>

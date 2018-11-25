@@ -1,31 +1,96 @@
 <template lang="pug">
 .field
-  .meta
-    i.material-icons {{ icon }}
-    mdc-textfield(label="Fältnamn", :value="name", @input="change($event, 'name')")
-    mdc-textfield(label="Fältetikett", :value="label", @input="change($event, 'label')")
+  header
+    i.material-icons.icon {{ icon }}
+    //mdc-textfield(label="Fältnamn", v-model="field.name")
+    input(type="text", v-model="field.label")
+    i.material-icons.caret(@click="openField") {{ caret }}
+    i.material-icons.remove(@click="remove") close
+
+  .content(:class="contentCssClasses")
+    //mdc-textfield(label="Fältetikett", v-model="field.label")
     // Type selector
-    mdc-select(label="Fälttyp", :selected="type", @change="change($event, 'type')")
+    mdc-select(label="Fälttyp", v-model="field.type")
       mdc-select-item(disabled, label="", value="")
       mdc-select-item(v-for="item of types", v-bind="item")
 
-    edit-fields(v-if="isCollection", nested, :fields="fields", @change="update")
-
-    mdc-button(@click="$emit('remove')", icon="close")
+    cms-fields(v-if="isCollection", :id="id")
 </template>
 
 <style lang="scss">
 .field {
-  padding: 0.5em 0;
+  margin: 1em 0;
 
-  & > .material-icons {
-    min-width: 24px;
-    margin-right: 1em;
+  & .mdc-select__native-control {
+    padding-bottom: 0;
+  }
+
+  & > header {
+    display: inline-block;
+    padding: 5px 2em 0;
+    background: #2196f3;
+    color: white;
+    box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.2);
+
+    & .icon {
+      margin-right: 1em;
+      cursor: default;
+    }
+    & .caret {
+      cursor: pointer;
+    }
+    & .remove {
+      margin-left: 1em;
+      cursor: pointer;
+      font-size: 24px;
+      transition: color 100ms ease;
+
+      &:hover {
+        color: #e53935;
+      }
+    }
+
+    & input {
+      height: 30px;
+      margin-bottom: 5px;
+      color: white;
+      background: none;
+      border: none;
+      outline: none;
+      font-size: 1.4em;
+      line-height: 1.4em;
+      transition: color 200ms ease;
+      border-bottom: 1px solid transparent;
+      width: 200px;
+
+      &:focus {
+        border-color: white;
+      }
+    }
+  }
+
+  & > .content {
+    display: block;
+    margin-left: 1em;
+    //transition: all 100ms ease-in-out;
+
+    &.hidden {
+      display: none;
+      /*visibility: hidden;
+      max-height: 0;
+      opacity: 0;
+      transform: translate(0, -10px);*/
+    }
+
+    & > .fields {
+      padding-left: 1em;
+    }
   }
 }
 </style>
 
 <script>
+import Field from '../../lib/field';
 const FIELD_ICONS = {
   paragraph: 'short_text',
   text: 'notes',
@@ -36,7 +101,6 @@ const FIELD_ICONS = {
   boolean: 'check_box',
   collection: 'list',
 };
-
 const FIELDS = [
   { label: 'Kort Text', value: 'paragraph' },
   { label: 'Lång Text', value: 'text' },
@@ -49,47 +113,58 @@ const FIELDS = [
 ];
 
 export default {
-  name: 'EditField',
+  name: 'CmsField',
+  components: {
+    CmsFields: () => import('./Fields.vue'),
+  },
   props: {
-    type: String,
-    name: String,
-    label: String,
-    nested: Boolean,
-    field: Object,
+    id: String,
+    open: String,
   },
 
+  data: () => ({
+    field: {},
+  }),
+
   computed: {
+    isNested() {
+      return this.id.includes(':');
+    },
     types() {
-      if(this.nested) {
-        return FIELDS.slice(0, -1);
-      }
-      return FIELDS;
+      return this.isNested ? FIELDS.slice(0, -1) : FIELDS;
     },
     icon() {
-      return FIELD_ICONS[this.type];
+      return FIELD_ICONS[this.field.type];
     },
     isCollection() {
-      return this.type == 'collection';
+      return this.field.type == 'collection';
     },
+    isOpen() {
+      return this.open == this.id;
+    },
+    contentCssClasses() {
+      return !this.isOpen && 'hidden';
+    },
+    caret() {
+      return 'keyboard_arrow_' + (this.isOpen ? 'up' : 'down');
+    },
+  },
+
+  created() {
+    const field = Field.read(this.id);
+    this.field = field;
   },
 
   methods: {
-    change(value, field) {
-      const data = Object.assign({
-        type: this.type,
-        name: this.name,
-        label: this.label,
-        fields: this.fields,
-      }, { [field]: value });
-
-      this.$emit('change', field, value);
+    update(name, value) {
+      this.field[name] = value;
     },
-    update(fields) {
-      this.$emit('change', { fields: fields });
+    remove() {
+      this.$emit('remove', this.field);
     },
-    fieldsChange(fields) {
-      
-    }
-  }
+    openField() {
+      this.$emit('update:open', this.isOpen ? '' : this.id);
+    },
+  },
 };
 </script>

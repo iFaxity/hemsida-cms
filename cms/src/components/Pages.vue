@@ -41,7 +41,7 @@ export default {
 
     // Call api function to get current pages
     try {
-      this.pages = await this.$api('/page');
+      this.pages = await this.$api.get('/page');
     } catch(ex) {
       this.$snackbar.show(ex.message);
     }
@@ -55,11 +55,8 @@ export default {
       const { dialog } = this;
 
       try {
-        await this.$api(`/page/${dialog.slug}`, {
-          method: 'put',
-          body: {
-            data: { label: dialog.label },
-          },
+        await this.$api.put(`/page/${dialog.slug}`, {
+          data: { label: dialog.label },
         });
 
         dialog.slug = '';

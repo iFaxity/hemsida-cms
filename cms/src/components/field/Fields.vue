@@ -1,64 +1,65 @@
 <template lang="pug">
 .fields
-  cms-field(v-for="(field, i) of fields", v-bind="field", :nested="nested", @change="change(field, i)", @remove="remove(field, i)")
-  mdc-button(icon="add", @click="add") Lägg till fält
+  cms-field(v-for="id of fieldIds", :id="id", :open.sync="opened", @remove="remove")
+  mdc-button(icon="add", :disabled="isInvalid", @click="add") Lägg till fält
 </template>
-
-<style lang="scss">
-.fields {
-  padding-left: 2em;
-  padding: 1em;
-  border: 1px solid black;
-
-  & > .fields {
-    padding-bottom: 1em;
-  }
-}
-</style>
 
 <script>
 import CmsField from './Field.vue';
-import Field from '../lib/field';
+import Field from '../../lib/field';
 
 export default {
-  name: 'EditFields',
+  name: 'CmsFields',
   components: { CmsField },
-  model: {
-    prop: 'fields',
-    event: 'change',
-  },
 
   props: {
-    fields: Array,
-    nested: Boolean,
+    id: String,
   },
   data: () => ({
-    valid: true,
+    fields: [],
+    opened: '',
   }),
+  computed: {
+    fieldIds() {
+      return this.fields.map((field, index) => {
+        const prefix = this.id ? `${this.id}:` : '';
+        return prefix + index;
+      });
+    },
+    isInvalid() {
+      return this.fields.some(field => {
+        return field.name == 'nytt_fält' || field !== this.fields.find(x => x.name === field.name);
+      });
+    },
+  },
+
+  created() {
+    const field = Field.read(this.id);
+    if (this.id) {
+      this.fields = (field.fields = []);
+    } else {
+      this.fields = field;
+    }
+  },
 
   methods: {
     add() {
-      const fields = Array.from(this.fields);
-      fields.push({
+      this.fields.push({
         name: 'nytt_fält',
         label: 'Nytt fält',
         type: 'paragraph',
       });
-
-      this.$emit('change', fields);
+      
+      // Focus the added element
+      this.$nextTick(() => {
+        const input = this.$el.querySelector('.field:last-of-type input');
+        input.focus();
+      });
     },
-    update(field, index) {
-      const fields = Array.from(this.fields);
-      fields[index] = field;
-
-      this.$emit('change', fields);
-    },
-    remove(field, index) {
-      const fields = Array.from(this.fields);
-      fields.splice(index, 1);
-
-      this.$emit('change', fields);
-    },
+    remove(field) {
+      const index = this.fields.findIndex(x => x === field);
+      this.fields.splice(index, 1);
+    }
   },
 };
 </script>
