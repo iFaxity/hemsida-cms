@@ -52,11 +52,9 @@ export default {
     Lang.setLanguage(lang || Object.values(langs)[0]);
 
     Object.defineProperty(Vue.prototype, '$l', {
-      writable: false,
       value: Lang.get,
     });
     Object.defineProperty(Vue.prototype, '$lang', {
-      writable: false,
       value: Lang,
     });
   },

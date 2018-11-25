@@ -1,8 +1,8 @@
 const Snackbar =  {
   _listeners: [],
   $on(handler) {
-    if (typeof handler !== "function") {
-      throw "listener has to be a function";
+    if (typeof handler != 'function') {
+      throw 'listener has to be a function';
     }
     this._listeners.push(handler);
   },
@@ -21,10 +21,7 @@ function install(Vue) {
   if (install.installed) return;
   install.installed = true;
 
-  Object.defineProperty(Vue.prototype, "$snackbar", {
-    value: Snackbar,
-    writable: false
-  });
+  Object.defineProperty(Vue.prototype, '$snackbar', { value: Snackbar });
 }
 
 export default { install };

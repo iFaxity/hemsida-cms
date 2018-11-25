@@ -1,114 +1,116 @@
-import Storage from './storage';
-
-const TOKEN_KEY = 'auth_token';
-const PAYLOAD_KEY = 'auth_payload';
-const EXPIRES_KEY = 'auth_expires';
-
-/**
- * Simplified fetch wrapper
- * @param {String} path 
- * @param {Object} body 
- */
-async function request(path, body) {
-  if(!body) {
-    throw new Error('Auth requester needs a body!');
+// Formats a js object to a query string
+function param(params) {
+  if(!params || !(typeof params == 'object' || Array.isArray(params))){
+    throw new TypeError('Parameter \'params\' is not an object or an array');
   }
 
-  const res = await fetch(path, {
-    method: 'post',
-    body: JSON.stringify(body),
-    headers: {
-      'Accept': 'application/json',
-      'Content-type': 'application/json'
+  return Object.entries(params)
+  .filter(item => item[1] !== undefined)
+  .map(item => `${item[0]}=${encodeURIComponent(item[1])}`)
+  .join('&');
+}
+// Helper function for request method
+function createRequestObject(path, { method, body } = {}) {
+  const opts = {
+    method: method || 'get',
+    headers: new Headers(),
+  };
+
+  // Parse the body
+  if (typeof body == 'object') {
+    if (body instanceof FormData) {
+      opts.body = body;
+    } else if (opts.method != 'post' && opts.method != 'put') {
+      path += '?' + param(body);
+    } else if (typeof body == 'object' || Array.isArray(body)) {
+      opts.body = JSON.stringify(body);
+      opts.headers.append('content-type', 'application/json');
     }
-  });
-
-  if (!res.ok) {
-    const json = await res.json();
-    throw new Error(json.message || 'Generellt autensiterigs fel!');
   }
 
-  return res.json();
+  return { url: path, opts };
+}
+// Decodes a base64 string with utf-8 encoding
+function base64Decode(str) {
+  const arr = atob(str).split('');
+
+  return decodeURIComponent(arr.map(c => {
+    const base = c.charCodeAt(0).toString(16);
+    return '%' + ('00' + base).slice(-2);
+  }).join(''));
 }
 
 export const Auth = {
   path: '/cms/auth',
-  get token() {
-    return Storage.get(TOKEN_KEY);
-  },
-  get expires() {
-    return Storage.get(EXPIRES_KEY);
-  },
-  get payload() {
-    return Storage.get(PAYLOAD_KEY, true);
-  },
-  get isLoggedIn() {
-    const { token, expires } = this;
-    // Check if token is still valid
-    return !!token && expires >= Date.now();
+  token: null,
+  payload: null,
+  hasRole() {
+    return true;
   },
 
   /**
-   * 
-   * @param {*} role - Role key.access string
+   * Sends a fetch request
+   * @param {String} path -
+   * @param {Object} options -
    */
-  hasRole(role) {
-    const [ roleKey, roleAccess ] = role.split('.');
-    if(!this.isLoggedIn) return false;
-  
-    // Check if we have access to the 
-    return this.payload.roles.some(userRole => {
-      const [ key, access ] = userRole.split('.');
-      return roleKey == key && (!access || access == 'all' || access == roleAccess);
-    });
-  },
+  async request(path, options, auth = true) {
+    const { url, opts } = createRequestObject(path, options);
+    if (auth) {
+      opts.headers.append('Authorization', `Bearer ${Auth.token}`);
+    }
+    
+    // Get response
+    const res = await fetch(url, opts);
 
-  /**
-   * Renews the token
-   */
-  async renewToken() {
-    if(!this.token) {
-      throw new Error('Can\'t renew a nonexistent token!');
+    const type = res.headers.get('content-type');
+    const isJSON = type.includes('application/json');
+    const body = await (isJSON ? res.json() : res.text());
+
+    // Check i request was OK 2xx
+    if (!res.ok) {
+      const msg = isJSON ? body.message : body;
+      throw new Error(msg || 'Generellt autensiterings fel');
     }
 
-    // Renew the token
-    const { token, expires } = await request(`${this.path}/renewToken`, { token });
-    Storage.set(TOKEN_KEY, token);
-    Storage.set(EXPIRES_KEY, expires);
+    // Was token renewed?
+    if (isJSON && body.token) {
+      const base64 = base64Decode(body.token.split('.')[1]);
+
+      this.token = body.token;
+      this.payload = JSON.parse(base64);
+    }
+
+    return isJSON ? body.data : body;
   },
+
   /**
    * Changes the users password
    * @param {String} newPassword 
    */
   changePassword(newPassword) {
-    const { path, token } = this;
-
     // Changing the password also renews the token
-    return request(`${path}/changePassword`, { token, newPassword });
+    const body = { newPassword };
+    return this.request(`${this.path}/changePassword`, { method: 'post', body });
   },
+
   /**
    * Logins the user and sets the session
    * @param {String} username 
    * @param {String} password 
    */
   async login(username, password) {
-    const { path } = this;
-
     // Set access token
-    const { token, expires, payload } = await request(`${path}/login`, { username, password });
-    Storage.set(TOKEN_KEY, token);
-    Storage.set(EXPIRES_KEY, expires);
-    Storage.set(PAYLOAD_KEY, payload);
+    const body = { username, password };
+    await this.request(`${this.path}/login`, { method: 'post', body }, false);
   },
+
   /**
-   * Destroys the session
+   * Destroys the token
    */
   logout() {
-    Storage.clear();
-    /*Storage.remove(TOKEN_KEY);
-    Storage.remove(EXPIRES_KEY);
-    Storage.remove(PAYLOAD_KEY);*/
-  }
+    this.token = null;
+    this.payload = null;
+  },
 };
 
 export default {
@@ -120,24 +122,17 @@ export default {
     Auth.path = path;
   
     // Define auth object to vue prototype
-    Object.defineProperty(Vue.prototype, '$auth', {
-      writable: false,
-      value: Auth,
-    });
+    Object.defineProperty(Vue.prototype, '$auth', { value: Auth });
   },
 
   // Vue Router authentication middleware
   middleware(to, from, next) {
     const match = to.matched.find(record => record.meta.auth);
     if(!match) {
-      next();
+      return next();
     }
 
-    const role = match.meta.auth;
-    console.log(`ROLE: ${role}`);
-    if(typeof role == 'string' && !Auth.hasRole(role)) {
-      next({ path: '/404' });
-    } else if(role == true && !Auth.isLoggedIn) {
+    if(match.meta.auth && !Auth.token) {
       next({
         path: '/login',
         query: {
